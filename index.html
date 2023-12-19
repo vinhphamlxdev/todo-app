@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo list</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="
+https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
+"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <div class="main p-3">
+        <div class="wrapper-layout">
+          <div class="header p-3 w-full flex items-center justify-between">
+            <div class="flex header__logo items-center gap-x-3">
+              <img class="w-10" src="./assets/todo-logo.png" alt="" />
+              <span class="text-lg font-medium">Todo App</span>
+            </div>
+          </div>
+          <div class="add-todo__form flex items-center justify-center gap-x-3">
+            <form class="form-input flex gap-x-3 items-center" action="">
+              <div class="p-3 w-[300px] rounded-lg">
+                <input
+                  placeholder="Type in here"
+                  class="w-full input-value px-3 py-2"
+                  type="text"
+                />
+              </div>
+              <div class="form-pickerdate">
+                <input
+                  class="w-[200px] px-3 py-2"
+                  placeholder="Set  deadline"
+                  id="picker-date"
+                />
+              </div>
+
+              <div class="flex gap-x-3 items-center">
+                <button
+                  class="btn-add btn text-white gap-x-1 flex items-center justify-center"
+                >
+                  <i class="bi bi-plus leading-[0px] text-[30px]"></i>
+                  <span>Add</span>
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="todo-layout mt-7 gap-x-2 grid grid-cols-3 w-full">
+            <div class="flex flex-col gap-y-2">
+              <div
+                class="todo-heading todo-heading--todo flex items-center gap-x-2 icon-edit text-2xl font-bold uppercase"
+              >
+                <div class="todo-heading__line"></div>
+                <span> todo</span>
+                <div class="todo-heading__line"></div>
+              </div>
+              <div
+                class="todo-status__todo gap-y-2 flex flex-col p-3 rounded-md"
+              >
+                <div class="todo-item shadow-sm">
+                  <div
+                    class="todo-item__content flex items-center items-center gap-x-3"
+                  >
+                    <div class="task-content text-base font-medium">Task 1</div>
+                  </div>
+                  <div
+                    class="todo-item__content flex items-center items-center"
+                  >
+                    <span class="due-date text-sm font-normal">28-8-2024</span>
+                  </div>
+                  <div
+                    class="todo-item__content flex items-center items-center"
+                  >
+                    <button class="btn--todo btn">todo</button>
+                  </div>
+                  <div
+                    class="todo-item__content gap-x-2 flex items-center items-center"
+                  >
+                    <i class="bi bi-pencil text-xl icon-edit"></i>
+                    <i class="bi bi-trash text-xl icon-trash"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-y-2">
+              <div
+                class="todo-heading todo-heading--doing flex items-center gap-x-2 icon-edit text-2xl font-bold uppercase"
+              >
+                <div class="todo-heading__line"></div>
+                <span> doing</span>
+                <div class="todo-heading__line"></div>
+              </div>
+              <div
+                class="todo-status__todo gap-y-2 flex flex-col p-3 rounded-md"
+              >
+                <div class="todo-item shadow-sm">
+                  <div
+                    class="todo-item__content flex items-center items-center gap-x-3"
+                  >
+                    <div class="task-content text-base font-medium">Task 1</div>
+                  </div>
+                  <div
+                    class="todo-item__content flex items-center items-center"
+                  >
+                    <span class="due-date text-sm font-normal">28-8-2024</span>
+                  </div>
+                  <div
+                    class="todo-item__content flex items-center items-center"
+                  >
+                    <button class="btn--doing btn">doing</button>
+                  </div>
+                  <div
+                    class="todo-item__content gap-x-2 flex items-center items-center"
+                  >
+                    <i class="bi bi-pencil text-xl icon-edit"></i>
+                    <i class="bi bi-trash delete-btn text-xl icon-trash"></i>
+                  </div>
+                </div>
+                <div class="todo-item shadow-sm">
+                  <div
+                    class="todo-item__content flex items-center items-center gap-x-3"
+                  >
+                    <div class="task-content text-base font-medium">Task 1</div>
+                  </div>
+                  <div
+                    class="todo-item__content flex items-center items-center"
+                  >
+                    <span class="due-date text-sm font-normal">28-8-2024</span>
+                  </div>
+                  <div
+                    class="todo-item__content flex items-center items-center"
+                  >
+                    <button class="btn--doing btn">doing</button>
+                  </div>
+                  <div
+                    class="todo-item__content gap-x-2 flex items-center items-center"
+                  >
+                    <i class="bi bi-pencil text-xl icon-edit"></i>
+                    <i class="bi bi-trash text-xl icon-trash"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="
+https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js
+"></script>
+
+    <script src="./main.js"></script>
+  </body>
+</html>
