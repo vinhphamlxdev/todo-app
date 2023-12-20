@@ -288,4 +288,25 @@ input:focus {
   height: 2px;
   width: 100%;
   background-color: var(--border-primary);
+}
+
+.checkbox-status {
+  width: 25px;
+  height: 25px;
+  background-color: #fff;
+  border: 2px solid var(--gray-blue-grey-blue-70);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.todo-column--doing .checkbox-status {
+  background-color: var(--bg-doing);
+  border-color: transparent;
+}
+
+.todo-column--done .checkbox-status {
+  background-color: var(--bg-done);
+  border-color: transparent;
 }/*# sourceMappingURL=style.css.map */
