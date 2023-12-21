@@ -2,70 +2,169 @@ const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 const submitBtn = $(".btn-add");
 const inputElm = $(".input-value");
-const dueDateElm = $("#picker-date");
+let dueDateElm = $("#due-date__picker");
+let startDateElm = $("#start-date__picker");
 const todoLayoutElm = $(".todo-layout");
 const todoListsElm = $$(".todo-list");
-
+const formGroupElm = $(".form-group");
 const app = {
   todos: [],
+  starteDate: "",
+  dueDate: "",
+  startTime: "",
+  isEditing: false,
   STATUS: {
     TODO: "Todo",
     DOING: "Doing",
     DONE: "Done",
   },
   todoColumnNames: ["Todo", "Doing", "Done"],
-  setupDatePicker: function () {
-    flatpickr("#picker-date", {
+  setupStartDatePicker: function (checkMaxDate, checkMaxTime) {
+    flatpickr("#start-date__picker", {
       enableTime: true,
       minDate: "today",
-      dateFormat: "Y-m-d H:i",
+      maxDate: checkMaxDate || null,
+      maxTime: checkMaxTime || null,
+      dateFormat: "Y/m/d H:i:S",
+      time_24hr: true,
+      enableSeconds: true,
       onChange: function (selectedDates, dateStr, instance) {
-        console.log("Selected Date and Time:", dateStr);
+        const currentSelected = selectedDates[0];
+        const currendDay = currentSelected.getTime();
+        const formatTime = `${currentSelected.getHours()}:${currentSelected.getMinutes()}:${currentSelected.getSeconds()}`;
+        app.startTime = formatTime;
+        app.starteDate = instance.input.value;
+        app.setupDueDatePicker(currendDay);
+        console.log(checkMaxDate);
+      },
+    });
+  },
+  preventDefaultForm: function () {
+    formGroupElm.onsubmit = function (event) {
+      event.preventDefault();
+    };
+  },
+
+  setupDueDatePicker: function (currendStartDay) {
+    flatpickr("#due-date__picker", {
+      enableTime: true,
+      minDate: app.starteDate || "today",
+      dateFormat: "Y/m/d H:i:S",
+      minTime: app.startTime,
+      time_24hr: true,
+      enableSeconds: true,
+      onChange: function (selectedDates, dateStr, instance) {
+        app.dueDate = instance.input.value;
+        const currentSelectTime = selectedDates[0].getTime();
+        const check =
+          currentSelectTime === currendStartDay ? app.startTime : null;
+        this.set("minTime", check);
+        const checkMaxDate = `${selectedDates[0].getFullYear()}/${
+          selectedDates[0].getMonth() + 1
+        }/${selectedDates[0].getDate()}`;
+        const checkMaxTime = `${selectedDates[0].getHours()}:${
+          selectedDates[0].getMinutes() - 1
+        }:${selectedDates[0].getSeconds()}`;
+        app.setupStartDatePicker(checkMaxDate, checkMaxTime);
       },
     });
   },
   handleEvent: function () {
     const _this = this;
+    //add todo
     submitBtn.onclick = function (event) {
-      event.preventDefault();
-      const dueDateVal = dueDateElm.value;
       const inputVal = inputElm.value;
       if (inputVal.trim() === "") {
         alert("Vui lòng nhập nội dung cho todo!");
         return;
       }
-      if (dueDateVal.trim() === "") {
+      if (!_this.starteDate) {
+        alert("Vui lòng chọn ngày bắt đầu!");
+        return;
+      }
+      if (!_this.dueDate) {
         alert("Vui lòng chọn ngày hết  hạn!");
         return;
       }
-      const dueDate = new Date(dueDateVal);
+
       const newTodoItem = {
         id: crypto.randomUUID(),
         status: _this.STATUS.TODO,
         text: inputElm.value,
-        dueDate,
+        startDate: _this.starteDate,
+        dueDate: _this.dueDate,
         columnName: _this.STATUS.TODO,
       };
-      _this.todos.push(newTodoItem);
+      _this.todos.unshift(newTodoItem);
       _this.saveTodosToLocalStorage(_this.todos);
       _this.renderTodos();
-      inputElm.value = "";
+      _this.resetValue();
     };
   },
-  handleDeleteTodo: function () {
+  resetValue: function () {
+    inputElm.value = "";
+    startDateElm.value = "";
+    dueDateElm.value = "";
+    this.starteDate = "";
+    this.dueDate = "";
+  },
+
+  handleEventTodo: function () {
     todoListsElm.forEach((column) => {
+      //
       const todoItemElm = column.querySelectorAll(".todo-item");
-      console.log(todoItemElm);
       todoItemElm.forEach((todoItem) => {
         todoItem.onclick = function (event) {
           if (event.target && event.target.closest(".delete-btn")) {
             const todoId = event.currentTarget.dataset.id;
-            console.log(event.target);
             app.deleteTodo(todoId);
+          }
+          //change status
+          if (event.target && event.target.closest(".checkbox-status")) {
+            const todoId = event.currentTarget.dataset.id;
+            app.changeTodoStatus(todoId);
+          }
+          //edit todo
+          if (event.target && event.target.closest(".edit-btn")) {
+            const todoId = event.currentTarget.dataset.id;
+            app.handleEditTodo(todoId);
           }
         };
       });
     });
+  },
+  updateTodo: function (todoId) {
+    const updateBtn = $(".btn-update");
+    const existIndex = this.todos.findIndex((todo) => todo.id === todoId);
+    if (existIndex !== -1) {
+      updateBtn.onclick = function () {
+        console.log(inputElm.value);
+        let newTodos = [...app.todos];
+        newTodos[existIndex] = {
+          ...newTodos[existIndex],
+          text: inputElm.value,
+          startDate: app.starteDate,
+          dueDate: app.dueDate,
+        };
+        app.saveTodosToLocalStorage(newTodos);
+        app.loadTodosFromLocalStorage();
+        app.renderTodos();
+        app.resetValue();
+      };
+    }
+  },
+  handleEditTodo: function (todoId) {
+    const existTodo = this.todos.find((todo) => todo.id === todoId);
+    if (existTodo) {
+      this.isEditing = true;
+      inputElm.value = existTodo.text;
+      startDateElm.value = existTodo.startDate;
+      dueDateElm.value = existTodo.dueDate;
+      this.starteDate = existTodo.startDate;
+      this.dueDate = existTodo.dueDate;
+
+      this.updateTodo(todoId);
+    }
   },
 
   changeTodoStatus: function (todoId) {
@@ -81,7 +180,6 @@ const app = {
         case this.STATUS.DOING:
           existTodo.status = this.STATUS.DONE;
           existTodo.columnName = this.STATUS.DONE;
-
           break;
       }
 
@@ -99,7 +197,6 @@ const app = {
   },
   saveTodosToLocalStorage: function (todos) {
     localStorage.setItem("todos", JSON.stringify(todos));
-    console.log("ok");
   },
   loadTodosFromLocalStorage: function () {
     const todoFromStorage = localStorage.getItem("todos");
@@ -115,34 +212,53 @@ const app = {
       if (todoInColumn.length > 0) {
         let html = todoInColumn.map((todo) => {
           return `
-          <div data-id="${todo.id}" class="todo-item select-none shadow-sm">
-          <div
-          class="todo-item__content flex items-center items-center"
-        >
-        <div class=" flex justify-center items-center">
-        <i class="bi bi-check-lg checkbox-status text-base text-white"></i>
-        </div>
+          <div data-id="${todo.id}" draggable="true"
+                  class="todo-item h-[150px] flex flex-col select-none shadow-lg"
+                >
+                  <div class="flex items-center justify-between w-full">
+                    <div
+                      class="todo-item__content flex gap-x-3 items-center items-center"
+                    >
+                      <div class="flex justify-center items-center">
+                        <i
+                          class="bi bi-check-lg checkbox-status text-base text-white"
+                        ></i>
+                      </div>
+                      <div class="task-content text-base font-medium">
+                        ${todo.text}
+                      </div>
+                    </div>
 
-        </div>  
-          <div
-            class="todo-item__content flex items-center items-center gap-x-3"
-          >
-            <div class="task-content text-base font-medium">${todo.text}</div>
-          </div>
-          <div
-            class="todo-item__content flex items-center items-center"
-          >
-            <span class="due-date text-sm font-normal">28-8-2024</span>
-          </div>
-         
-          <div
-            class="todo-item__content gap-x-2 flex items-center items-center"
-          >
-            <i class="bi bi-pencil text-xl icon-edit"></i>
-            <i class="bi delete-btn bi-trash text-xl icon-trash"></i>
-          </div>
-        </div>
-          
+                    <div
+                      class="todo-item__content ml-2 gap-x-2 flex items-center items-center"
+                    >
+                    ${
+                      todo.columnName !== "Done"
+                        ? `
+                    <i class="bi bi-pencil text-xl edit-btn"></i>
+                    `
+                        : ""
+                    }
+                      <i class="bi delete-btn bi-trash text-xl icon-trash"></i>
+                    </div>
+                  </div>
+                  <div
+                    class="set-date__time w-full flex justify-between items-center"
+                  >
+                    <div class="flex gap-x-1 items-center">
+                      <span>start:</span>
+                      <span class="italic  pt-1  text-sm font-normal"
+                        >${todo.startDate}</span
+                      >
+                    </div>
+                    <div class="flex gap-x-1 items-center">
+                      <span>end:</span>
+                      <span class="italic pt-1 text-sm font-normal"
+                        >${todo.dueDate}</span
+                      >
+                    </div>
+                  </div>
+                </div>
           `;
         });
         todoColumnElm.innerHTML = html.join("");
@@ -150,15 +266,19 @@ const app = {
         todoColumnElm.innerHTML = "";
       }
     });
-    this.handleDeleteTodo();
+    this.handleEventTodo();
   },
 
   start: function () {
-    this.setupDatePicker();
+    this.setupStartDatePicker();
+    this.setupDueDatePicker();
     this.loadTodosFromLocalStorage();
     this.renderTodos();
     this.handleEvent();
+    this.preventDefaultForm();
   },
 };
 
-app.start();
+window.document.addEventListener("DOMContentLoaded", app.start());
+
+window.document.ondrop = (e) => console.log(e);

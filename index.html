@@ -29,7 +29,10 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
             </div>
           </div>
           <div class="add-todo__form flex items-center justify-center gap-x-3">
-            <form class="form-input flex gap-x-3 items-center" action="">
+            <form
+              class="form-input form-group flex gap-x-3 items-center"
+              action=""
+            >
               <div class="p-3 w-[300px] rounded-lg">
                 <input
                   placeholder="Type in here"
@@ -37,20 +40,44 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
                   type="text"
                 />
               </div>
-              <div class="form-pickerdate">
+              <div class="form-pickerdate relative">
+                <label
+                  class="absolute right-2 cursor-pointer hover:opacity-70 top-2/4 -translate-y-2/4"
+                  for="start-date__picker"
+                >
+                  <i class="bi bi-calendar-check text-xl"></i>
+                </label>
                 <input
-                  class="w-[200px] px-3 py-2"
-                  placeholder="Set  deadline"
-                  id="picker-date"
+                  class="w-[250px] px-3 py-2"
+                  placeholder="Set  start date"
+                  id="start-date__picker"
                 />
               </div>
-
+              <div class="form-pickerdate relative">
+                <label
+                  class="absolute right-2 cursor-pointer hover:opacity-70 top-2/4 -translate-y-2/4"
+                  for="due-date__picker"
+                >
+                  <i class="bi bi-calendar-check text-xl"></i>
+                </label>
+                <input
+                  class="w-[250px] px-3 py-2"
+                  placeholder="Set  due date"
+                  id="due-date__picker"
+                />
+              </div>
               <div class="flex gap-x-3 items-center">
                 <button
                   class="btn-add btn text-white gap-x-1 flex items-center justify-center"
                 >
                   <i class="bi bi-plus leading-[0px] text-[30px]"></i>
                   <span>Add</span>
+                </button>
+                <button
+                  class="btn-update btn text-white gap-x-1 flex items-center justify-center"
+                >
+                  <i class="bi bi-plus leading-[0px] text-[30px]"></i>
+                  <span>Save</span>
                 </button>
               </div>
             </form>
@@ -80,57 +107,64 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
               </div>
             </div>
             <div class="todo-layout mt-7 gap-x-2 grid grid-cols-3 w-full">
-              <div class="flex flex-col gap-y-2 todo-list todo-column--todo">
+              <div
+                class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--todo"
+              >
                 <!-- <div
-                  class="todo-item flex flex-col h-[140px] select-none shadow-md"
+                  class="todo-item h-[150px] flex flex-col select-none shadow-lg"
                 >
-                  <div class="flex justify-between w-full">
+                  <div class="flex items-center justify-between w-full">
                     <div
-                      class="todo-item__content flex items-center items-center"
+                      class="todo-item__content flex gap-x-3 items-center items-center"
                     >
-                      <div
-                        class="checkbox-status flex justify-center items-center"
-                      >
-                        <i class="bi bi-check-lg text-base text-white"></i>
+                      <div class="flex justify-center items-center">
+                        <i
+                          class="bi bi-check-lg checkbox-status text-base text-white"
+                        ></i>
                       </div>
-                    </div>
-                    <div
-                      class="todo-item__content flex items-center items-center gap-x-3"
-                    >
                       <div class="task-content text-base font-medium">
-                        task 1
+                        dasmdamsdla
                       </div>
                     </div>
 
                     <div
-                      class="todo-item__content gap-x-2 flex items-center items-center"
+                      class="todo-item__content ml-2 gap-x-2 flex items-center items-center"
                     >
                       <i class="bi bi-pencil text-xl icon-edit"></i>
                       <i class="bi delete-btn bi-trash text-xl icon-trash"></i>
                     </div>
                   </div>
-                  <div class="flex items-center justify-between w-full">
-                    <div class="flex items-center gap-x-1">
-                      <span class="text-sm font-normal">start:</span>
-                      <span class="text-sm font-normal">2023-12-21 12:00</span>
+                  <div
+                    class="set-date__time w-full flex justify-between items-center"
+                  >
+                    <div class="flex gap-x-2 items-center">
+                      <span>start:</span>
+                      <span class="italic text-sm font-normal"
+                        >2023-12-22 12:00:00</span
+                      >
                     </div>
-                    <div class="flex items-center gap-x-1">
-                      <span class="text-sm font-normal">end:</span>
-                      <span class="text-sm font-normal">2023-12-21 12:00</span>
+                    <div class="flex gap-x-2 items-center">
+                      <span>end:</span>
+                      <span class="italic text-sm font-normal"
+                        >2023-12-22 12:00:00</span
+                      >
                     </div>
                   </div>
                 </div> -->
-
                 <div
                   class="todo-status__todo gap-y-2 flex flex-col p-3 rounded-md"
                 ></div>
               </div>
-              <div class="flex flex-col gap-y-2 todo-list todo-column--doing">
+              <div
+                class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--doing"
+              >
                 <div
                   class="todo-status__todo gap-y-2 flex flex-col p-3 rounded-md"
                 ></div>
               </div>
-              <div class="flex flex-col gap-y-2 todo-list todo-column--done">
+              <div
+                class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--done"
+              >
                 <div
                   class="todo-status__todo gap-y-2 flex flex-col p-3 rounded-md"
                 ></div>

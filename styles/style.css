@@ -144,8 +144,20 @@ input:focus {
   color: var(--white);
 }
 
+.btn-update {
+  background-color: var(--bg-add);
+}
+
+.btn-update.is-editing {
+  display: flex;
+}
+
 .btn-add {
   background-color: var(--bg-add);
+}
+
+.btn-add.is-editing {
+  display: none;
 }
 
 .todo-status__todo,
@@ -251,12 +263,12 @@ input:focus {
   opacity: 0.8;
 }
 
-.icon-edit {
+.edit-btn {
   transition: all;
   color: var(--pendding-bg);
   cursor: pointer;
 }
-.icon-edit:hover {
+.edit-btn:hover {
   opacity: 0.8;
 }
 
@@ -302,11 +314,19 @@ input:focus {
 }
 
 .todo-column--doing .checkbox-status {
-  background-color: var(--bg-doing);
-  border-color: transparent;
+  border: 2px solid var(--bg-doing);
 }
 
 .todo-column--done .checkbox-status {
   background-color: var(--bg-done);
   border-color: transparent;
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+  color: rgba(57, 57, 57, 0.5);
+}
+
+.dragging {
+  opacity: 0.5;
 }/*# sourceMappingURL=style.css.map */
