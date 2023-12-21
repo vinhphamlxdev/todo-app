@@ -1,12 +1,14 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
-const submitBtn = $(".btn-add");
 const inputElm = $(".input-value");
 let dueDateElm = $("#due-date__picker");
 let startDateElm = $("#start-date__picker");
 const todoLayoutElm = $(".todo-layout");
 const todoListsElm = $$(".todo-list");
 const formGroupElm = $(".form-group");
+const updateBtn = $(".btn-update");
+const submitBtn = $(".btn-add");
+
 const app = {
   todos: [],
   starteDate: "",
@@ -73,20 +75,6 @@ const app = {
     const _this = this;
     //add todo
     submitBtn.onclick = function (event) {
-      const inputVal = inputElm.value;
-      if (inputVal.trim() === "") {
-        alert("Vui lòng nhập nội dung cho todo!");
-        return;
-      }
-      if (!_this.starteDate) {
-        alert("Vui lòng chọn ngày bắt đầu!");
-        return;
-      }
-      if (!_this.dueDate) {
-        alert("Vui lòng chọn ngày hết  hạn!");
-        return;
-      }
-
       const newTodoItem = {
         id: crypto.randomUUID(),
         status: _this.STATUS.TODO,
@@ -95,10 +83,18 @@ const app = {
         dueDate: _this.dueDate,
         columnName: _this.STATUS.TODO,
       };
-      _this.todos.unshift(newTodoItem);
-      _this.saveTodosToLocalStorage(_this.todos);
-      _this.renderTodos();
-      _this.resetValue();
+      if (!_this.checkEmptyValue()) {
+        _this.todos.unshift(newTodoItem);
+        _this.saveTodosToLocalStorage(_this.todos);
+        _this.renderTodos();
+        _this.resetValue();
+      } else {
+        Swal.fire({
+          text: "Please complete all information",
+          icon: "warning",
+          confirmButtonText: "Ok",
+        });
+      }
     };
   },
   resetValue: function () {
@@ -108,12 +104,64 @@ const app = {
     this.starteDate = "";
     this.dueDate = "";
   },
+  insertAboveTask: function (column, mouseY) {
+    const todoItems = column.querySelectorAll(".todo-item:not(.is-dragging)");
+    let closestTask = null;
+    let closestOffset = Number.POSITIVE_INFINITY;
+
+    todoItems.forEach((todoItem) => {
+      const { top, height } = todoItem.getBoundingClientRect();
+      const offset = mouseY - top;
+
+      // Adjust this condition based on where you want to insert the dragged item
+      if (offset < 0 && offset < closestOffset && offset < height / 2) {
+        closestOffset = offset;
+        closestTask = todoItem;
+      }
+    });
+
+    return closestTask;
+  },
 
   handleEventTodo: function () {
     todoListsElm.forEach((column) => {
+      column.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        const draggedItemId = event.dataTransfer.getData("text/plain");
+        const draggedItem = document.querySelector(
+          `[data-id="${draggedItemId}"]`
+        );
+        const bottomTodoItem = app.insertAboveTask(column, event.clientY);
+        if (!bottomTodoItem) {
+          column.appendChild(draggedItem);
+        } else {
+          column.insertBefore(draggedItem, bottomTodoItem);
+        }
+      });
+      column.addEventListener("drop", (event) => {
+        event.preventDefault();
+        const draggedItemId = event.dataTransfer.getData("text/plain");
+        const draggedItem = column.dataset.columnName;
+        //update status
+        const existIndex = app.todos.findIndex(
+          (todo) => todo.id === draggedItemId
+        );
+        if (existIndex !== -1) {
+          // this.todos[existIndex].status =
+        }
+      });
       //
       const todoItemElm = column.querySelectorAll(".todo-item");
       todoItemElm.forEach((todoItem) => {
+        todoItem.addEventListener("dragstart", (event) => {
+          todoItem.classList.add(".is-dragging");
+          event.dataTransfer.setData("text/plain", todoItem.dataset.id);
+        });
+        todoItem.addEventListener("dragend", (event) => {
+          todoItem.classList.remove("is-dragging");
+        });
+
+        //
         todoItem.onclick = function (event) {
           if (event.target && event.target.closest(".delete-btn")) {
             const todoId = event.currentTarget.dataset.id;
@@ -133,23 +181,44 @@ const app = {
       });
     });
   },
+  checkEmptyValue: function () {
+    if (inputElm.value.trim() === "") {
+      return true;
+    }
+    if (!app.starteDate) {
+      return true;
+    }
+    if (!app.dueDate) {
+      return true;
+    }
+    return false;
+  },
   updateTodo: function (todoId) {
-    const updateBtn = $(".btn-update");
     const existIndex = this.todos.findIndex((todo) => todo.id === todoId);
     if (existIndex !== -1) {
       updateBtn.onclick = function () {
-        console.log(inputElm.value);
-        let newTodos = [...app.todos];
+        const newTodos = [...app.todos];
         newTodos[existIndex] = {
           ...newTodos[existIndex],
           text: inputElm.value,
           startDate: app.starteDate,
           dueDate: app.dueDate,
         };
-        app.saveTodosToLocalStorage(newTodos);
-        app.loadTodosFromLocalStorage();
-        app.renderTodos();
-        app.resetValue();
+        if (!app.checkEmptyValue()) {
+          app.saveTodosToLocalStorage(newTodos);
+          app.loadTodosFromLocalStorage();
+          app.renderTodos();
+          app.resetValue();
+          app.isEditing = false;
+          updateBtn.style.display = "none";
+          submitBtn.style.display = "flex";
+        } else {
+          Swal.fire({
+            text: "Please complete all information",
+            icon: "warning",
+            confirmButtonText: "Ok",
+          });
+        }
       };
     }
   },
@@ -162,15 +231,14 @@ const app = {
       dueDateElm.value = existTodo.dueDate;
       this.starteDate = existTodo.startDate;
       this.dueDate = existTodo.dueDate;
-
       this.updateTodo(todoId);
+      submitBtn.style.display = "none";
+      updateBtn.style.display = "flex";
     }
   },
 
   changeTodoStatus: function (todoId) {
-    console.log(todoId);
     const existTodo = this.todos.find((t) => t.id === todoId);
-
     if (existTodo) {
       switch (existTodo.status) {
         case this.STATUS.TODO:
@@ -189,8 +257,7 @@ const app = {
     }
   },
   deleteTodo: function (todoId) {
-    let newTodos = this.todos.filter((todo) => todo.id !== todoId);
-    console.log(newTodos);
+    const newTodos = this.todos.filter((todo) => todo.id !== todoId);
     this.saveTodosToLocalStorage(newTodos);
     this.loadTodosFromLocalStorage();
     this.renderTodos();
@@ -280,5 +347,3 @@ const app = {
 };
 
 window.document.addEventListener("DOMContentLoaded", app.start());
-
-window.document.ondrop = (e) => console.log(e);
