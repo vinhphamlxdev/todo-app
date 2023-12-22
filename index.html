@@ -33,7 +33,26 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
     <link rel="stylesheet" href="./styles/style.css" />
   </head>
   <body>
-    <div class="app">
+    <div class="app relative">
+      <!-- toast -->
+      <div class="toast-container active">
+        <!-- <div class="toast toast--success">
+          <div class="toast-content flex items-center gap-x-2">
+            <i
+              class="fas fa-solid fa-check check w-[35px] flex justify-center items-center h-[35px] rounded-full icon-success"
+            ></i>
+            <div class="message justify-start">
+              <div class="text-5 font-semibold select-none notify-status">
+                Success
+              </div>
+              <div class="select-none">Your changes has been soved</div>
+            </div>
+          </div>
+          <div class="fa-solid fa-xmark close close-toast"></div>
+          <div class="progress"></div>
+        </div> -->
+      </div>
+      <!--  -->
       <div class="main p-3">
         <div class="wrapper-layout">
           <div class="header p-3 w-full flex items-center justify-between">
@@ -124,6 +143,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
             </div>
             <div class="todo-layout mt-7 gap-x-2 grid grid-cols-3 w-full">
               <div
+                data-columName="Todo"
                 class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--todo"
               >
                 <!-- <div
@@ -172,6 +192,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
                 ></div>
               </div>
               <div
+                data-columName="Doing"
                 class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--doing"
               >
                 <div
@@ -179,6 +200,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
                 ></div>
               </div>
               <div
+                data-columName="Done"
                 class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--done"
               >
                 <div

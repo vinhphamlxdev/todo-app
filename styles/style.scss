@@ -59,6 +59,8 @@ button {
   --border-primary: #a3a3b9;
   --bg-doing: #fdbf46;
   --bg-todo: #27a300;
+  --progress-bg: #3361ff;
+  --warning-color: #fdbf46;
 }
 body {
   min-height: 100vh;
@@ -310,9 +312,102 @@ input:focus {
 .flatpickr-day.flatpickr-disabled:hover {
   color: rgba(57, 57, 57, 0.5);
 }
-.is-dragging {
-  scale: 1.05;
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
-  background: rgb(50, 50, 50);
-  color: white;
+.todo-column--todo {
+  .is-dragging {
+    scale: 1.05;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
+    background: var(--bg-todo);
+    color: white;
+  }
+}
+.todo-column--doing {
+  .is-dragging {
+    scale: 1.05;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
+    background: var(--bg-doing);
+    color: white;
+  }
+}
+.todo-column--done {
+  .is-dragging {
+    scale: 1.05;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
+    background: var(--bg-done);
+    color: white;
+  }
+}
+.toast-container {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  overflow: hidden;
+  transform: translateX(calc(100% + 30px));
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0, 265, 1.35);
+  &.active {
+    transform: translateX(0%);
+  }
+
+  .icon-status {
+    color: #fff;
+    background-color: #4070f4;
+  }
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+    &:hover {
+      opacity: 1;
+    }
+  }
+  .toast-content .message {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background-color: #ddd;
+    &::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      right: 50px;
+      height: 100%;
+      width: 100%;
+      background-color: var(--progress-bg);
+    }
+  }
+  .progress.active::before {
+    animation: progress 5s linear forwards;
+  }
+}
+@keyframes progress {
+  100% {
+    right: 100%;
+  }
+}
+.toast {
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 20px 35px 20px 25px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+.toast--warning {
+  border-left: 6px solid var(--warning-color);
+
+  .icon-status {
+    background-color: var(--warning-color);
+    color: #fff;
+  }
+  .progress::before {
+    background-color: var(--warning-color);
+  }
 }

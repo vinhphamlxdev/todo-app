@@ -8,6 +8,8 @@ const todoListsElm = $$(".todo-list");
 const formGroupElm = $(".form-group");
 const updateBtn = $(".btn-update");
 const submitBtn = $(".btn-add");
+const closeToast = $(".close-toast");
+const progressElm = $(".progress");
 
 const app = {
   todos: [],
@@ -32,21 +34,54 @@ const app = {
       enableSeconds: true,
       onChange: function (selectedDates, dateStr, instance) {
         const currentSelected = selectedDates[0];
-        const currendDay = currentSelected.getTime();
+        const currentDaySelect = currentSelected.getTime();
         const formatTime = `${currentSelected.getHours()}:${currentSelected.getMinutes()}:${currentSelected.getSeconds()}`;
         app.startTime = formatTime;
         app.starteDate = instance.input.value;
-        app.setupDueDatePicker(currendDay);
-        console.log(checkMaxDate);
+        app.setupDueDatePicker(currentDaySelect);
+        //check min Time
+        const currentDate = Date.now();
+        //neu ngay dc chon lon ngay hien tai
+        if (currentDaySelect > currentDate) {
+          this.set("minTime", null);
+        }
+      },
+      onOpen: function (selectedDates, dateStr, instance) {
+        const currentDate = new Date();
+        const formatCurrTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+        this.set("minTime", formatCurrTime);
       },
     });
   },
-  preventDefaultForm: function () {
-    formGroupElm.onsubmit = function (event) {
-      event.preventDefault();
-    };
+  createToastMsg: function ({
+    status = "",
+    message = "",
+    type = "warning",
+    duration = "",
+  }) {
+    const toastContainerElm = $(".toast-container");
+    if (toastContainerElm) {
+      const toastLayoutElm = document.createElement("div");
+      toastLayoutElm.classList.add("toast", `toast--${type}`);
+      toastLayoutElm.innerHTML = `
+      <div class="toast-content flex items-center gap-x-2">
+      <i
+        class="fas fa-solid fa-check check w-[35px] flex justify-center items-center h-[35px] rounded-full icon-status"
+      ></i>
+      <div class="message justify-start">
+        <div class="text-5 font-semibold select-none notify-status">
+          ${status}
+        </div>
+        <div class="select-none">${message}</div>
+      </div>
+    </div>
+    <div class="fa-solid fa-xmark close close-toast"></div>
+    <div class="progress"></div>
+  </div>
+      `;
+      toastContainerElm.appendChild(toastLayoutElm);
+    }
   },
-
   setupDueDatePicker: function (currendStartDay) {
     flatpickr("#due-date__picker", {
       enableTime: true,
@@ -71,6 +106,11 @@ const app = {
       },
     });
   },
+  preventDefaultForm: function () {
+    formGroupElm.onsubmit = function (event) {
+      event.preventDefault();
+    };
+  },
   handleEvent: function () {
     const _this = this;
     //add todo
@@ -81,7 +121,6 @@ const app = {
         text: inputElm.value,
         startDate: _this.starteDate,
         dueDate: _this.dueDate,
-        columnName: _this.STATUS.TODO,
       };
       if (!_this.checkEmptyValue()) {
         _this.todos.unshift(newTodoItem);
@@ -104,57 +143,51 @@ const app = {
     this.starteDate = "";
     this.dueDate = "";
   },
-  insertAboveTask: function (column, mouseY) {
-    const todoItems = column.querySelectorAll(".todo-item:not(.is-dragging)");
-    let closestTask = null;
-    let closestOffset = Number.POSITIVE_INFINITY;
-
-    todoItems.forEach((todoItem) => {
-      const { top, height } = todoItem.getBoundingClientRect();
-      const offset = mouseY - top;
-
-      // Adjust this condition based on where you want to insert the dragged item
-      if (offset < 0 && offset < closestOffset && offset < height / 2) {
-        closestOffset = offset;
-        closestTask = todoItem;
-      }
-    });
-
-    return closestTask;
-  },
 
   handleEventTodo: function () {
     todoListsElm.forEach((column) => {
-      column.addEventListener("dragover", (event) => {
+      column.ondragover = function (event) {
         event.preventDefault();
-        const draggedItemId = event.dataTransfer.getData("text/plain");
-        const draggedItem = document.querySelector(
-          `[data-id="${draggedItemId}"]`
+        const draggingEl = $(".todo-item.is-dragging");
+        if (!draggingEl) return;
+        const remainingEl = event.currentTarget.querySelectorAll(
+          ".todo-item:not(.is-dragging)"
         );
-        const bottomTodoItem = app.insertAboveTask(column, event.clientY);
-        if (!bottomTodoItem) {
-          column.appendChild(draggedItem);
-        } else {
-          column.insertBefore(draggedItem, bottomTodoItem);
-        }
-      });
-      column.addEventListener("drop", (event) => {
+        const targetElm = [...remainingEl].find((item) => {
+          return event.pageY <= item.offsetTop + item.offsetHeight / 2;
+        });
+        column.insertBefore(draggingEl, targetElm);
+      };
+      column.ondrop = function (event) {
         event.preventDefault();
         const draggedItemId = event.dataTransfer.getData("text/plain");
-        const draggedItem = column.dataset.columnName;
         //update status
         const existIndex = app.todos.findIndex(
           (todo) => todo.id === draggedItemId
         );
         if (existIndex !== -1) {
-          // this.todos[existIndex].status =
+          const newTodos = [...app.todos];
+          newTodos[existIndex].status = column.dataset.columname;
+          const todoNodeList = document.querySelectorAll(".todo-item");
+          const arrId = [...todoNodeList].map(
+            (todoNode) => todoNode.dataset.id
+          );
+          const indexMap = {};
+          arrId.forEach((item, index) => {
+            indexMap[item] = index;
+          });
+
+          const sortedArr = newTodos.sort(
+            (a, b) => indexMap[a.id] - indexMap[b.id]
+          );
+          app.syncTodo(sortedArr);
         }
-      });
+      };
       //
       const todoItemElm = column.querySelectorAll(".todo-item");
       todoItemElm.forEach((todoItem) => {
         todoItem.addEventListener("dragstart", (event) => {
-          todoItem.classList.add(".is-dragging");
+          todoItem.classList.add("is-dragging");
           event.dataTransfer.setData("text/plain", todoItem.dataset.id);
         });
         todoItem.addEventListener("dragend", (event) => {
@@ -181,6 +214,12 @@ const app = {
       });
     });
   },
+  syncTodo: function (newTodos) {
+    this.saveTodosToLocalStorage(newTodos);
+    this.loadTodosFromLocalStorage();
+    this.renderTodos();
+  },
+
   checkEmptyValue: function () {
     if (inputElm.value.trim() === "") {
       return true;
@@ -192,6 +231,24 @@ const app = {
       return true;
     }
     return false;
+  },
+  checkDueDateTodo: function () {
+    setInterval(() => {
+      const currentDate = new Date();
+      const currentDateTime = currentDate.getTime();
+      this.todos.forEach((todoItem) => {
+        const dueDate = new Date(todoItem.dueDate);
+        if (todoItem.status === "Todo" || todoItem.status === "Doing") {
+          if (currentDateTime >= dueDate) {
+            // Swal.fire({
+            //   text: "Please complete all information",
+            //   icon: "warning",
+            //   confirmButtonText: "Ok",
+            // });
+          }
+        }
+      });
+    }, 1000);
   },
   updateTodo: function (todoId) {
     const existIndex = this.todos.findIndex((todo) => todo.id === todoId);
@@ -205,9 +262,7 @@ const app = {
           dueDate: app.dueDate,
         };
         if (!app.checkEmptyValue()) {
-          app.saveTodosToLocalStorage(newTodos);
-          app.loadTodosFromLocalStorage();
-          app.renderTodos();
+          app.syncTodo(newTodos);
           app.resetValue();
           app.isEditing = false;
           updateBtn.style.display = "none";
@@ -243,24 +298,18 @@ const app = {
       switch (existTodo.status) {
         case this.STATUS.TODO:
           existTodo.status = this.STATUS.DOING;
-          existTodo.columnName = this.STATUS.DOING;
           break;
         case this.STATUS.DOING:
           existTodo.status = this.STATUS.DONE;
-          existTodo.columnName = this.STATUS.DONE;
           break;
       }
 
-      this.saveTodosToLocalStorage(this.todos);
-      this.loadTodosFromLocalStorage();
-      this.renderTodos();
+      this.syncTodo(this.todos);
     }
   },
   deleteTodo: function (todoId) {
     const newTodos = this.todos.filter((todo) => todo.id !== todoId);
-    this.saveTodosToLocalStorage(newTodos);
-    this.loadTodosFromLocalStorage();
-    this.renderTodos();
+    this.syncTodo(newTodos);
   },
   saveTodosToLocalStorage: function (todos) {
     localStorage.setItem("todos", JSON.stringify(todos));
@@ -274,7 +323,7 @@ const app = {
     this.todoColumnNames.forEach((columnName) => {
       const todoColumnElm = $(`.todo-column--${columnName.toLowerCase()}`);
       const todoInColumn = this.todos.filter(
-        (item) => item.columnName === columnName
+        (item) => item.status === columnName
       );
       if (todoInColumn.length > 0) {
         let html = todoInColumn.map((todo) => {
@@ -300,7 +349,7 @@ const app = {
                       class="todo-item__content ml-2 gap-x-2 flex items-center items-center"
                     >
                     ${
-                      todo.columnName !== "Done"
+                      todo.status !== "Done"
                         ? `
                     <i class="bi bi-pencil text-xl edit-btn"></i>
                     `
@@ -343,6 +392,11 @@ const app = {
     this.renderTodos();
     this.handleEvent();
     this.preventDefaultForm();
+    this.checkDueDateTodo();
+    this.createToastMsg({
+      status: "Success",
+      message: "meshdaskdkas dasndans",
+    });
   },
 };
 
