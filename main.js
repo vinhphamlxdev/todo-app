@@ -8,10 +8,10 @@ const todoListsElm = $$(".todo-list");
 const formGroupElm = $(".form-group");
 const updateBtn = $(".btn-update");
 const submitBtn = $(".btn-add");
-const closeToast = $(".close-toast");
 const progressElm = $(".progress");
 const btnToast = $(".btn-toast");
 const toastContainerElm = $(".toast");
+const closeToastBtn = $(".close-toast");
 
 const app = {
   todos: [],
@@ -25,19 +25,30 @@ const app = {
     DONE: "Done",
   },
   todoColumnNames: ["Todo", "Doing", "Done"],
-  checkToast: function () {
-    btnToast.onclick = function (e) {
-      toastContainerElm.classList.add("active");
-      progressElm.classList.add("active");
-      setTimeout(() => {
-        toastContainerElm.classList.remove("active");
-      }, 5000); //1s = 1000millisecond
-      setTimeout(() => {
-        progressElm.classList.remove("active");
-      }, 5300);
+  createToastMsg: function () {
+    toastContainerElm.classList.add("active");
+    progressElm.classList.add("active");
+    setTimeout(() => {
+      toastContainerElm.classList.remove("active");
+    }, 5000); //1s = 1000millisecond
+    setTimeout(() => {
+      progressElm.classList.remove("active");
+    }, 5300);
+  },
+  handleCloseToast: function () {
+    closeToastBtn.onclick = function (e) {
+      toastContainerElm.classList.remove("active");
+      progressElm.classList.remove("active");
     };
   },
-
+  handleDarkMode: function () {
+    const darkModeElm = $(".darkmode__btn");
+    const darkModeBtnElm = $(".darkmode");
+    darkModeElm.onclick = function (event) {
+      darkModeBtnElm.classList.toggle("active");
+      document.body.classList.toggle("dark-theme");
+    };
+  },
   compareDate: function (startDate, dueDate) {
     const currStartDate = new Date(startDate);
     const currDueDate = new Date(dueDate);
@@ -82,6 +93,7 @@ const app = {
         app.startTime = formatTime;
         app.starteDate = instance.input.value;
         app.setupDueDatePicker(currentSelected);
+        //check max time
         //check min Time
         const currentDate = new Date();
         //neu ngay dc chon lon ngay hien tai
@@ -118,7 +130,7 @@ const app = {
         //
         const currTime = app.getCurrTime();
         console.log(app.startTime);
-        const check = checkCompareDate ? app.startTime : currTime;
+        const check = checkCompareDate ? app.startTime : null;
         //
         this.set("minTime", check);
         const checkMaxDate = `${selectedDates[0].getFullYear()}/${
@@ -266,14 +278,11 @@ const app = {
         const dueDate = new Date(todoItem.dueDate);
         if (todoItem.status === "Todo" || todoItem.status === "Doing") {
           if (currentDateTime >= dueDate.getTime()) {
-            // this.createToastMsg({
-            //   status: "Success",
-            //   message: "den han todo",
-            // });
+            app.createToastMsg();
           }
         }
       });
-    }, 1000);
+    }, 5500);
   },
   updateTodo: function (todoId) {
     const existIndex = this.todos.findIndex((todo) => todo.id === todoId);
@@ -354,18 +363,18 @@ const app = {
         let html = todoInColumn.map((todo) => {
           return `
           <div data-id="${todo.id}" draggable="true"
-                  class="todo-item h-[150px] flex flex-col select-none shadow-lg"
+                  class="todo-item h-[150px] frink-0 overflow-hidden flex flex-col select-none shadow-lg"
                 >
                   <div class="flex items-center justify-between w-full">
                     <div
-                      class="todo-item__content flex gap-x-3 items-center items-center"
+                      class="todo-item__content flex-1 flex gap-x-3 items-center items-center"
                     >
                       <div class="flex justify-center items-center">
                         <i
                           class="bi bi-check-lg checkbox-status text-base text-white"
                         ></i>
                       </div>
-                      <div class="task-content text-base font-medium">
+                      <div class="task-content whitespace-wrap text-base font-medium">
                         ${todo.text}
                       </div>
                     </div>
@@ -418,7 +427,8 @@ const app = {
     this.handleEvent();
     this.preventDefaultForm();
     this.checkDueDateTodo();
-    this.checkToast();
+    this.handleCloseToast();
+    this.handleDarkMode();
   },
 };
 

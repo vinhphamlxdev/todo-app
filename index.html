@@ -38,7 +38,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
       <div class="toast">
         <div class="toast-content flex items-center gap-x-2">
           <i
-            class="fas fa-solid fa-check check w-[35px] flex justify-center items-center h-[35px] rounded-full icon-warning"
+            class="bi bi-info-circle w-[35px] flex justify-center items-center h-[35px] rounded-full icon-warning"
           ></i>
           <div class="message justify-start">
             <div class="text-5 font-semibold select-none notify-status">
@@ -53,10 +53,29 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
       <!--  -->
       <div class="main p-3">
         <div class="wrapper-layout">
-          <div class="header p-3 w-full flex items-center justify-between">
+          <div
+            class="header p-3 w-full justify-between flex items-center justify-between"
+          >
             <div class="flex header__logo items-center gap-x-3">
               <img class="w-10" src="./assets/todo-logo.png" alt="" />
               <span class="text-lg font-medium">Todo App</span>
+            </div>
+            <div
+              class="flex darkmode__btn items-center justify-center mx-2 transition-all duration-500"
+            >
+              <button
+                class="relative scale-125 h-[22px] w-11 rounded-full darkmode"
+              >
+                <i
+                  class="absolute text-white left-2 text-[10px] leading-[0] top-2/4 -translate-y-2/4 bi bi-sun-fill"
+                ></i>
+                <div
+                  class="absolute w-4 z-10 h-4 bg-white rounded-full top-2/4 -translate-y-2/4 left-[calc(100%-20px)] spinner"
+                ></div>
+                <i
+                  class="absolute text-white right-2 text-[10px] leading-[0] top-2/4 -translate-y-2/4 bi bi-moon-fill"
+                ></i>
+              </button>
             </div>
           </div>
           <div class="add-todo__form flex items-center justify-center gap-x-3">
@@ -99,19 +118,19 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
               </div>
               <div class="flex gap-x-3 h-[42px] items-center">
                 <button
-                  class="btn-add btn text-white gap-x-1 flex items-center justify-center"
+                  class="btn-add btn text-white gap-x-1 h-[42px] w-[88px] flex items-center justify-center"
                 >
                   <i class="bi bi-plus leading-[0px] text-[30px]"></i>
                   <span>Add</span>
                 </button>
-                <button
+                <!-- <button
                   class="btn-toast btn bg-pink-500 text-white gap-x-1 flex items-center justify-center"
                 >
                   <i class="bi bi-plus leading-[0px] text-[30px]"></i>
                   <span>toast</span>
-                </button>
+                </button> -->
                 <button
-                  class="btn-update hidden btn text-white gap-x-1 flex items-center justify-center"
+                  class="btn-update w-[88px] hidden btn text-white gap-x-1 flex items-center h-[42px] justify-center"
                 >
                   <i
                     class="fa-regular fa-floppy-disk leading-[0px] text-[13px]"
@@ -148,7 +167,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
             <div class="todo-layout mt-7 gap-x-2 grid grid-cols-3 w-full">
               <div
                 data-columName="Todo"
-                class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--todo"
+                class="flex flex-col gap-y-3 todo-list h-[500px] has-scrollbar todo-column--todo"
               >
                 <!-- <div
                   class="todo-item h-[150px] flex flex-col select-none shadow-lg"
@@ -197,7 +216,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
               </div>
               <div
                 data-columName="Doing"
-                class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--doing"
+                class="flex flex-col gap-y-3 todo-list h-[500px] has-scrollbar todo-column--doing"
               >
                 <div
                   class="todo-status__todo gap-y-2 flex flex-col p-3 rounded-md"
@@ -205,7 +224,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
               </div>
               <div
                 data-columName="Done"
-                class="flex flex-col gap-y-2 todo-list min-h-screen todo-column--done"
+                class="flex flex-col gap-y-3 todo-list h-[500px] has-scrollbar todo-column--done"
               >
                 <div
                   class="todo-status__todo gap-y-2 flex flex-col p-3 rounded-md"
