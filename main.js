@@ -10,6 +10,8 @@ const updateBtn = $(".btn-update");
 const submitBtn = $(".btn-add");
 const closeToast = $(".close-toast");
 const progressElm = $(".progress");
+const btnToast = $(".btn-toast");
+const toastContainerElm = $(".toast");
 
 const app = {
   todos: [],
@@ -23,6 +25,47 @@ const app = {
     DONE: "Done",
   },
   todoColumnNames: ["Todo", "Doing", "Done"],
+  checkToast: function () {
+    btnToast.onclick = function (e) {
+      toastContainerElm.classList.add("active");
+      progressElm.classList.add("active");
+      setTimeout(() => {
+        toastContainerElm.classList.remove("active");
+      }, 5000); //1s = 1000millisecond
+      setTimeout(() => {
+        progressElm.classList.remove("active");
+      }, 5300);
+    };
+  },
+
+  compareDate: function (startDate, dueDate) {
+    const currStartDate = new Date(startDate);
+    const currDueDate = new Date(dueDate);
+    const numStartDate = parseInt(
+      `${currStartDate.getFullYear()}${(currStartDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}${currStartDate
+        .getDate()
+        .toString()
+        .padStart(2, "0")}`,
+      10
+    );
+    const numDueDate = parseInt(
+      `${currDueDate.getFullYear()}${(currDueDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}${currDueDate.getDate().toString().padStart(2, "0")}`,
+      10
+    );
+    return numStartDate === numDueDate;
+  },
+
+  getCurrTime: function () {
+    const newDate = new Date();
+    const currTime = `${newDate.getHours()}:${
+      newDate.getMinutes
+    }:${newDate.getSeconds()}`;
+    return currTime;
+  },
   setupStartDatePicker: function (checkMaxDate, checkMaxTime) {
     flatpickr("#start-date__picker", {
       enableTime: true,
@@ -34,67 +77,49 @@ const app = {
       enableSeconds: true,
       onChange: function (selectedDates, dateStr, instance) {
         const currentSelected = selectedDates[0];
-        const currentDaySelect = currentSelected.getTime();
+        const dateSelected = currentSelected.getTime();
         const formatTime = `${currentSelected.getHours()}:${currentSelected.getMinutes()}:${currentSelected.getSeconds()}`;
         app.startTime = formatTime;
         app.starteDate = instance.input.value;
-        app.setupDueDatePicker(currentDaySelect);
+        app.setupDueDatePicker(currentSelected);
         //check min Time
-        const currentDate = Date.now();
+        const currentDate = new Date();
         //neu ngay dc chon lon ngay hien tai
-        if (currentDaySelect > currentDate) {
+        if (dateSelected > currentDate.getTime()) {
           this.set("minTime", null);
+        } else {
+          const currTime = app.getCurrTime();
+          this.set("minTime", currTime);
         }
       },
       onOpen: function (selectedDates, dateStr, instance) {
         const currentDate = new Date();
+        console.log(currentDate.getHours());
         const formatCurrTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
         this.set("minTime", formatCurrTime);
       },
     });
   },
-  createToastMsg: function ({
-    status = "",
-    message = "",
-    type = "warning",
-    duration = "",
-  }) {
-    const toastContainerElm = $(".toast-container");
-    if (toastContainerElm) {
-      const toastLayoutElm = document.createElement("div");
-      toastLayoutElm.classList.add("toast", `toast--${type}`);
-      toastLayoutElm.innerHTML = `
-      <div class="toast-content flex items-center gap-x-2">
-      <i
-        class="fas fa-solid fa-check check w-[35px] flex justify-center items-center h-[35px] rounded-full icon-status"
-      ></i>
-      <div class="message justify-start">
-        <div class="text-5 font-semibold select-none notify-status">
-          ${status}
-        </div>
-        <div class="select-none">${message}</div>
-      </div>
-    </div>
-    <div class="fa-solid fa-xmark close close-toast"></div>
-    <div class="progress"></div>
-  </div>
-      `;
-      toastContainerElm.appendChild(toastLayoutElm);
-    }
-  },
-  setupDueDatePicker: function (currendStartDay) {
+
+  setupDueDatePicker: function (currentStartDate) {
     flatpickr("#due-date__picker", {
       enableTime: true,
       minDate: app.starteDate || "today",
       dateFormat: "Y/m/d H:i:S",
-      minTime: app.startTime,
       time_24hr: true,
       enableSeconds: true,
       onChange: function (selectedDates, dateStr, instance) {
         app.dueDate = instance.input.value;
-        const currentSelectTime = selectedDates[0].getTime();
-        const check =
-          currentSelectTime === currendStartDay ? app.startTime : null;
+        //
+        const checkCompareDate = app.compareDate(
+          currentStartDate,
+          selectedDates[0]
+        );
+        //
+        const currTime = app.getCurrTime();
+        console.log(app.startTime);
+        const check = checkCompareDate ? app.startTime : currTime;
+        //
         this.set("minTime", check);
         const checkMaxDate = `${selectedDates[0].getFullYear()}/${
           selectedDates[0].getMonth() + 1
@@ -106,6 +131,7 @@ const app = {
       },
     });
   },
+
   preventDefaultForm: function () {
     formGroupElm.onsubmit = function (event) {
       event.preventDefault();
@@ -239,11 +265,10 @@ const app = {
       this.todos.forEach((todoItem) => {
         const dueDate = new Date(todoItem.dueDate);
         if (todoItem.status === "Todo" || todoItem.status === "Doing") {
-          if (currentDateTime >= dueDate) {
-            // Swal.fire({
-            //   text: "Please complete all information",
-            //   icon: "warning",
-            //   confirmButtonText: "Ok",
+          if (currentDateTime >= dueDate.getTime()) {
+            // this.createToastMsg({
+            //   status: "Success",
+            //   message: "den han todo",
             // });
           }
         }
@@ -393,10 +418,7 @@ const app = {
     this.handleEvent();
     this.preventDefaultForm();
     this.checkDueDateTodo();
-    this.createToastMsg({
-      status: "Success",
-      message: "meshdaskdkas dasndans",
-    });
+    this.checkToast();
   },
 };
 

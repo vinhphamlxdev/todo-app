@@ -35,22 +35,20 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
   <body>
     <div class="app relative">
       <!-- toast -->
-      <div class="toast-container active">
-        <!-- <div class="toast toast--success">
-          <div class="toast-content flex items-center gap-x-2">
-            <i
-              class="fas fa-solid fa-check check w-[35px] flex justify-center items-center h-[35px] rounded-full icon-success"
-            ></i>
-            <div class="message justify-start">
-              <div class="text-5 font-semibold select-none notify-status">
-                Success
-              </div>
-              <div class="select-none">Your changes has been soved</div>
+      <div class="toast">
+        <div class="toast-content flex items-center gap-x-2">
+          <i
+            class="fas fa-solid fa-check check w-[35px] flex justify-center items-center h-[35px] rounded-full icon-warning"
+          ></i>
+          <div class="message justify-start">
+            <div class="text-5 font-semibold select-none notify-status">
+              Warning
             </div>
+            <div class="select-none">Your changes has been soved</div>
           </div>
-          <div class="fa-solid fa-xmark close close-toast"></div>
-          <div class="progress"></div>
-        </div> -->
+        </div>
+        <div class="fa-solid fa-xmark close close-toast"></div>
+        <div class="progress"></div>
       </div>
       <!--  -->
       <div class="main p-3">
@@ -105,6 +103,12 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
                 >
                   <i class="bi bi-plus leading-[0px] text-[30px]"></i>
                   <span>Add</span>
+                </button>
+                <button
+                  class="btn-toast btn bg-pink-500 text-white gap-x-1 flex items-center justify-center"
+                >
+                  <i class="bi bi-plus leading-[0px] text-[30px]"></i>
+                  <span>toast</span>
                 </button>
                 <button
                   class="btn-update hidden btn text-white gap-x-1 flex items-center justify-center"

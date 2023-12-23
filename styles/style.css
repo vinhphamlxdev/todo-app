@@ -65,9 +65,10 @@ button {
   --bg-add: #27a300;
   --border-primary: #a3a3b9;
   --bg-doing: #fdbf46;
-  --bg-todo: #27a300;
-  --progress-bg: #3361ff;
+  --bg-todo: #54c1ad;
+  --progress-bg: #fdbf46;
   --warning-color: #fdbf46;
+  --error-color: #ef233c;
 }
 
 body {
@@ -91,7 +92,8 @@ body {
 .app {
   width: 100%;
   min-height: 100vh;
-  padding: 40px;
+  padding: 20px;
+  overflow: hidden;
 }
 
 .main {
@@ -177,6 +179,10 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all;
+}
+.todo-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .cbx {
@@ -352,22 +358,30 @@ input:focus {
   color: white;
 }
 
-.toast-container {
+.toast {
   position: absolute;
   top: 25px;
   right: 30px;
   overflow: hidden;
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 20px 35px 20px 25px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
   transform: translateX(calc(100% + 30px));
-  transition: all 0.5s cubic-bezier(0.68, -0.55, 0, 265, 1.35);
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+  border-left: 6px solid var(--bg-doing);
+  z-index: 300;
+  width: 370px;
 }
-.toast-container.active {
+.toast.active {
   transform: translateX(0%);
 }
-.toast-container .icon-status {
+.toast .icon-warning {
   color: #fff;
-  background-color: #4070f4;
+  background-color: var(--bg-doing);
 }
-.toast-container .close {
+.toast .close {
   position: absolute;
   top: 10px;
   right: 15px;
@@ -375,14 +389,14 @@ input:focus {
   cursor: pointer;
   opacity: 0.7;
 }
-.toast-container .close:hover {
+.toast .close:hover {
   opacity: 1;
 }
-.toast-container .toast-content .message {
+.toast .toast-content .message {
   display: flex;
   flex-direction: column;
 }
-.toast-container .progress {
+.toast .progress {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -390,7 +404,7 @@ input:focus {
   width: 100%;
   background-color: #ddd;
 }
-.toast-container .progress::before {
+.toast .progress::before {
   content: "";
   position: absolute;
   bottom: 0;
@@ -399,7 +413,7 @@ input:focus {
   width: 100%;
   background-color: var(--progress-bg);
 }
-.toast-container .progress.active::before {
+.toast .progress.active::before {
   animation: progress 5s linear forwards;
 }
 
@@ -407,22 +421,4 @@ input:focus {
   100% {
     right: 100%;
   }
-}
-.toast {
-  border-radius: 12px;
-  background-color: #fff;
-  padding: 20px 35px 20px 25px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.toast--warning {
-  border-left: 6px solid var(--warning-color);
-}
-.toast--warning .icon-status {
-  background-color: var(--warning-color);
-  color: #fff;
-}
-.toast--warning .progress::before {
-  background-color: var(--warning-color);
 }/*# sourceMappingURL=style.css.map */

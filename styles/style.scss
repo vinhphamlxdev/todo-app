@@ -58,9 +58,10 @@ button {
   --bg-add: #27a300;
   --border-primary: #a3a3b9;
   --bg-doing: #fdbf46;
-  --bg-todo: #27a300;
-  --progress-bg: #3361ff;
+  --bg-todo: #54c1ad;
+  --progress-bg: #fdbf46;
   --warning-color: #fdbf46;
+  --error-color: #ef233c;
 }
 body {
   min-height: 100vh;
@@ -85,7 +86,8 @@ body {
 .app {
   width: 100%;
   min-height: 100vh;
-  padding: 40px;
+  padding: 20px;
+  overflow: hidden;
 }
 .main {
   background-color: var(--white);
@@ -156,6 +158,10 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
 }
 .cbx {
   position: relative;
@@ -336,20 +342,28 @@ input:focus {
     color: white;
   }
 }
-.toast-container {
+.toast {
   position: absolute;
   top: 25px;
   right: 30px;
   overflow: hidden;
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 20px 35px 20px 25px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
   transform: translateX(calc(100% + 30px));
-  transition: all 0.5s cubic-bezier(0.68, -0.55, 0, 265, 1.35);
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+  border-left: 6px solid var(--bg-doing);
+  z-index: 300;
+  width: 370px;
   &.active {
     transform: translateX(0%);
   }
 
-  .icon-status {
+  .icon-warning {
     color: #fff;
-    background-color: #4070f4;
+    background-color: var(--bg-doing);
   }
   .close {
     position: absolute;
@@ -391,23 +405,5 @@ input:focus {
 @keyframes progress {
   100% {
     right: 100%;
-  }
-}
-.toast {
-  border-radius: 12px;
-  background-color: #fff;
-  padding: 20px 35px 20px 25px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-.toast--warning {
-  border-left: 6px solid var(--warning-color);
-
-  .icon-status {
-    background-color: var(--warning-color);
-    color: #fff;
-  }
-  .progress::before {
-    background-color: var(--warning-color);
   }
 }
