@@ -71,6 +71,7 @@ button {
   --error-color: #ef233c;
   --bg-theme: #fff;
   --bg-card: #fff;
+  --hover-todo: rgba(0, 0, 0, 0.05);
 }
 
 .dark-theme {
@@ -99,7 +100,8 @@ button {
   --warning-color: #fdbf46;
   --error-color: #ef233c;
   --bg-theme: rgb(30, 30, 30);
-  --bg-card: rgba(0, 0, 0, 0.05);
+  --bg-card: rgba(255, 255, 255, 0.1);
+  --hover-todo: rgba(255, 255, 255, 0.1);
 }
 
 body {
@@ -254,7 +256,7 @@ input:focus {
   transition: all;
 }
 .todo-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--hover-todo);
 }
 
 .cbx {
@@ -385,21 +387,47 @@ input:focus {
 }
 
 .checkbox-status {
-  width: 25px;
-  height: 25px;
-  background-color: #fff;
-  border: 2px solid var(--gray-blue-grey-blue-70);
-  border-radius: 4px;
   cursor: pointer;
-  position: relative;
   transition: background-color 0.3s;
+  color: transparent;
 }
 
-.todo-column--doing .checkbox-status {
+.todo-column--todo .todo-item {
+  border-left: 6px solid var(--bg-todo);
+}
+.todo-column--todo .todo-item:hover .checkbox-status {
+  color: transparent;
+}
+.todo-column--todo .checkbox-box {
+  border: 2px solid var(--bg-todo);
+}
+.todo-column--todo .is-dragging {
+  scale: 1.05;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
+  background: var(--bg-todo);
+  color: white;
+}
+
+.todo-column--doing .todo-item {
+  border-left: 6px solid var(--bg-doing);
+}
+.todo-column--doing .todo-item:hover .checkbox-status {
+  color: transparent;
+}
+.todo-column--doing .checkbox-box {
+  border: 2px solid var(--bg-doing);
+}
+.todo-column--doing .checkbox-box {
   border: 2px solid var(--bg-doing);
 }
 
-.todo-column--done .checkbox-status {
+.todo-column--done .todo-item {
+  border-left: 6px solid var(--bg-done);
+}
+.todo-column--done .checkbox-box {
+  border: 2px solid var(--bg-done);
+}
+.todo-column--done .checkbox-box {
   background-color: var(--bg-done);
   border-color: transparent;
 }
@@ -411,13 +439,6 @@ input:focus {
 
 .is-dragging {
   border-radius: 8px;
-}
-
-.todo-column--todo .is-dragging {
-  scale: 1.05;
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
-  background: var(--bg-todo);
-  color: white;
 }
 
 .todo-column--doing .is-dragging {
@@ -432,6 +453,10 @@ input:focus {
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
   background: var(--bg-done);
   color: white;
+}
+.todo-column--done .todo__content-name {
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
 .toast {

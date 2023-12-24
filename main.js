@@ -341,6 +341,7 @@ const app = {
       this.syncTodo(this.todos);
     }
   },
+
   deleteTodo: function (todoId) {
     const newTodos = this.todos.filter((todo) => todo.id !== todoId);
     this.syncTodo(newTodos);
@@ -369,12 +370,12 @@ const app = {
                     <div
                       class="todo-item__content flex-1 flex gap-x-3 items-center items-center"
                     >
-                      <div class="flex justify-center items-center">
+                      <div class="flex justify-center shrink-0 w-7 checkbox-box h-7 rounded-full items-center">
                         <i
                           class="bi bi-check-lg checkbox-status text-base text-white"
                         ></i>
                       </div>
-                      <div class="task-content whitespace-wrap text-base font-medium">
+                      <div class="task-content todo__content-name whitespace-wrap text-base font-medium">
                         ${todo.text}
                       </div>
                     </div>

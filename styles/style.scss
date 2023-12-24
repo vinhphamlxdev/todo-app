@@ -64,6 +64,7 @@ button {
   --error-color: #ef233c;
   --bg-theme: #fff;
   --bg-card: #fff;
+  --hover-todo: rgba(0, 0, 0, 0.05);
 }
 .dark-theme {
   --gray-blue-grey-blue-95: #edeff2;
@@ -91,7 +92,8 @@ button {
   --warning-color: #fdbf46;
   --error-color: #ef233c;
   --bg-theme: rgb(30, 30, 30);
-  --bg-card: rgba(0, 0, 0, 0.05);
+  --bg-card: rgba(255, 255, 255, 0.1);
+  --hover-todo: rgba(255, 255, 255, 0.1);
 }
 body {
   min-height: 100vh;
@@ -222,13 +224,14 @@ input:focus {
   background-color: var(--bg-card);
   border-radius: 8px;
   padding: 12px 12px;
+
   //   border: 1px solid var(--border-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: all;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--hover-todo);
   }
 }
 .cbx {
@@ -360,24 +363,50 @@ input:focus {
 }
 
 .checkbox-status {
-  width: 25px;
-  height: 25px;
-  background-color: #fff;
-  border: 2px solid var(--gray-blue-grey-blue-70);
-  border-radius: 4px;
   cursor: pointer;
-  position: relative;
   transition: background-color 0.3s;
+  color: transparent;
 }
-
+.todo-column--todo {
+  .todo-item {
+    border-left: 6px solid var(--bg-todo);
+    &:hover .checkbox-status {
+      color: transparent;
+    }
+  }
+  .checkbox-box {
+    border: 2px solid var(--bg-todo);
+  }
+  .is-dragging {
+    scale: 1.05;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
+    background: var(--bg-todo);
+    color: white;
+  }
+}
 .todo-column--doing {
-  .checkbox-status {
-    // background-color: var(--bg-doing);
+  .todo-item {
+    border-left: 6px solid var(--bg-doing);
+    &:hover .checkbox-status {
+      color: transparent;
+    }
+  }
+  .checkbox-box {
+    border: 2px solid var(--bg-doing);
+  }
+  .checkbox-box {
     border: 2px solid var(--bg-doing);
   }
 }
 .todo-column--done {
-  .checkbox-status {
+  .todo-item {
+    border-left: 6px solid var(--bg-done);
+    // border-right: 6px solid var(--bg-done);
+  }
+  .checkbox-box {
+    border: 2px solid var(--bg-done);
+  }
+  .checkbox-box {
     background-color: var(--bg-done);
     border-color: transparent;
   }
@@ -389,14 +418,7 @@ input:focus {
 .is-dragging {
   border-radius: 8px;
 }
-.todo-column--todo {
-  .is-dragging {
-    scale: 1.05;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
-    background: var(--bg-todo);
-    color: white;
-  }
-}
+
 .todo-column--doing {
   .is-dragging {
     scale: 1.05;
@@ -411,6 +433,10 @@ input:focus {
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
     background: var(--bg-done);
     color: white;
+  }
+  .todo__content-name {
+    text-decoration: line-through;
+    opacity: 0.7;
   }
 }
 .toast {
