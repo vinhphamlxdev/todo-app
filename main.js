@@ -25,7 +25,7 @@ const app = {
     DONE: "Done",
   },
   todoColumnNames: ["Todo", "Doing", "Done"],
-  createToastMsg: function () {
+  showToastMsg: function (callback) {
     toastContainerElm.classList.add("active");
     progressElm.classList.add("active");
     setTimeout(() => {
@@ -34,6 +34,7 @@ const app = {
     setTimeout(() => {
       progressElm.classList.remove("active");
     }, 5300);
+    callback();
   },
   handleCloseToast: function () {
     closeToastBtn.onclick = function (e) {
@@ -72,11 +73,18 @@ const app = {
 
   getCurrTime: function () {
     const newDate = new Date();
-    const currTime = `${newDate.getHours()}:${
-      newDate.getMinutes
-    }:${newDate.getSeconds()}`;
+    const currTime = `${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getSeconds()}`;
     return currTime;
   },
+  handleSameDate: function (dateComp) {
+    const dateCompFormat = `${dateComp.getDate()}/${dateComp.getMonth()}/${dateComp.getFullYear()}`;
+    const now = new Date();
+    const formatCurrDate = `${now.getDate()}/${now.getMonth()}/${now.getFullYear()}`;
+    console.log(dateCompFormat);
+    console.log(formatCurrDate);
+    return formatCurrDate === dateCompFormat;
+  },
+
   setupStartDatePicker: function (checkMaxDate, checkMaxTime) {
     flatpickr("#start-date__picker", {
       enableTime: true,
@@ -95,18 +103,17 @@ const app = {
         app.setupDueDatePicker(currentSelected);
         //check max time
         //check min Time
-        const currentDate = new Date();
         //neu ngay dc chon lon ngay hien tai
-        if (dateSelected > currentDate.getTime()) {
-          this.set("minTime", null);
+        if (app.handleSameDate(currentSelected)) {
+          console.log("true");
+          console.log(app.getCurrTime());
+          this.set("minTime", app.getCurrTime());
         } else {
-          const currTime = app.getCurrTime();
-          this.set("minTime", currTime);
+          this.set("minTime", null);
         }
       },
       onOpen: function (selectedDates, dateStr, instance) {
         const currentDate = new Date();
-        console.log(currentDate.getHours());
         const formatCurrTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
         this.set("minTime", formatCurrTime);
       },
@@ -116,9 +123,9 @@ const app = {
   setupDueDatePicker: function (currentStartDate) {
     flatpickr("#due-date__picker", {
       enableTime: true,
-      minDate: app.starteDate || "today",
       dateFormat: "Y/m/d H:i:S",
       time_24hr: true,
+      minDate: app.starteDate,
       enableSeconds: true,
       onChange: function (selectedDates, dateStr, instance) {
         app.dueDate = instance.input.value;
@@ -128,8 +135,6 @@ const app = {
           selectedDates[0]
         );
         //
-        const currTime = app.getCurrTime();
-        console.log(app.startTime);
         const check = checkCompareDate ? app.startTime : null;
         //
         this.set("minTime", check);
@@ -140,6 +145,10 @@ const app = {
           selectedDates[0].getMinutes() - 1
         }:${selectedDates[0].getSeconds()}`;
         app.setupStartDatePicker(checkMaxDate, checkMaxTime);
+      },
+      onOpen: function (selectedDates, dateStr, instance) {
+        const check = app.starteDate;
+        this.set("minDate", check || null);
       },
     });
   },
@@ -270,46 +279,58 @@ const app = {
     }
     return false;
   },
+  deleFunc: function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  },
+
   checkDueDateTodo: function () {
-    setInterval(() => {
+    setInterval(async () => {
       const currentDate = new Date();
       const currentDateTime = currentDate.getTime();
-      this.todos.forEach((todoItem) => {
-        const dueDate = new Date(todoItem.dueDate);
-        if (todoItem.status === "Todo" || todoItem.status === "Doing") {
+
+      for (const todoItem of this.todos) {
+        if (
+          (todoItem.status === "Todo" || todoItem.status === "Doing") &&
+          !todoItem.checked
+        ) {
+          const dueDate = new Date(todoItem.dueDate);
           if (currentDateTime >= dueDate.getTime()) {
-            app.createToastMsg();
+            app.showToastMsg(() => {
+              todoItem.checked = true;
+            });
+            break;
           }
         }
-      });
+      }
     }, 5500);
   },
   updateTodo: function (todoId) {
-    const existIndex = this.todos.findIndex((todo) => todo.id === todoId);
-    if (existIndex !== -1) {
-      updateBtn.onclick = function () {
-        const newTodos = [...app.todos];
-        newTodos[existIndex] = {
-          ...newTodos[existIndex],
-          text: inputElm.value,
-          startDate: app.starteDate,
-          dueDate: app.dueDate,
-        };
-        if (!app.checkEmptyValue()) {
-          app.syncTodo(newTodos);
-          app.resetValue();
-          app.isEditing = false;
-          updateBtn.style.display = "none";
-          submitBtn.style.display = "flex";
-        } else {
-          Swal.fire({
-            text: "Please complete all information",
-            icon: "warning",
-            confirmButtonText: "Ok",
-          });
+    updateBtn.onclick = function () {
+      const updateTodos = app.todos.map((todo) => {
+        if (todo.id === todoId) {
+          return {
+            ...todo,
+            text: inputElm.value,
+            startDate: app.starteDate,
+            dueDate: app.dueDate,
+          };
         }
-      };
-    }
+        return todo;
+      });
+      if (!app.checkEmptyValue()) {
+        app.syncTodo(updateTodos);
+        app.resetValue();
+        app.isEditing = false;
+        updateBtn.style.display = "none";
+        submitBtn.style.display = "flex";
+      } else {
+        Swal.fire({
+          text: "Please complete all information",
+          icon: "warning",
+          confirmButtonText: "Ok",
+        });
+      }
+    };
   },
   handleEditTodo: function (todoId) {
     const existTodo = this.todos.find((todo) => todo.id === todoId);
@@ -372,7 +393,7 @@ const app = {
                     >
                       <div class="flex justify-center shrink-0 w-7 checkbox-box h-7 rounded-full items-center">
                         <i
-                          class="bi bi-check-lg checkbox-status text-base text-white"
+                          class="bi bi-check-lg checkbox-status text-base"
                         ></i>
                       </div>
                       <div class="task-content todo__content-name whitespace-wrap text-base font-medium">
