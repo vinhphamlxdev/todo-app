@@ -7,41 +7,38 @@ const todoLayoutElm = $(".todo-layout");
 const todoListsElm = $$(".todo-list");
 const formGroupElm = $(".form-group");
 const updateBtn = $(".btn-update");
-const submitBtn = $(".btn-add");
+const addNewTodoBtn = $(".btn-add");
 const progressElm = $(".progress");
 const btnToast = $(".btn-toast");
 const toastContainerElm = $(".toast");
-const closeToastBtn = $(".close-toast");
+const notificationsElm = $(".notifications");
 
 const app = {
   todos: [],
   starteDate: "",
   dueDate: "",
   startTime: "",
+  startFlatpickr: null,
+  dueFlatpickr: null,
   isEditing: false,
+  intervalId: null,
+  startSelectedDate: "",
+  checkStartDate: {
+    checkMaxDate: "",
+    checkMaxTime: "",
+  },
   STATUS: {
     TODO: "Todo",
     DOING: "Doing",
     DONE: "Done",
   },
   todoColumnNames: ["Todo", "Doing", "Done"],
-  showToastMsg: function (callback) {
-    toastContainerElm.classList.add("active");
-    progressElm.classList.add("active");
-    setTimeout(() => {
-      toastContainerElm.classList.remove("active");
-    }, 5000); //1s = 1000millisecond
-    setTimeout(() => {
-      progressElm.classList.remove("active");
-    }, 5300);
-    callback();
-  },
-  handleCloseToast: function () {
-    closeToastBtn.onclick = function (e) {
-      toastContainerElm.classList.remove("active");
-      progressElm.classList.remove("active");
+  showToastMsg: function () {
+    btnToast.onclick = function (e) {
+      app.renderToastMsg("task 1", "12/12/2023", "warning");
     };
   },
+
   handleDarkMode: function () {
     const darkModeElm = $(".darkmode__btn");
     const darkModeBtnElm = $(".darkmode");
@@ -85,30 +82,31 @@ const app = {
     return formatCurrDate === dateCompFormat;
   },
 
-  setupStartDatePicker: function (checkMaxDate, checkMaxTime) {
-    flatpickr("#start-date__picker", {
+  setupStartDatePicker: function () {
+    app.startFlatpickr = flatpickr("#start-date__picker", {
       enableTime: true,
       minDate: "today",
-      maxDate: checkMaxDate || null,
-      maxTime: checkMaxTime || null,
+      maxDate: app.checkStartDate.checkMaxDate || null,
+      maxTime: app.checkStartDate.checkMaxTime || null,
       dateFormat: "Y/m/d H:i:S",
       time_24hr: true,
       enableSeconds: true,
       onChange: function (selectedDates, dateStr, instance) {
         const currentSelected = selectedDates[0];
-        const dateSelected = currentSelected.getTime();
+        if (!currentSelected) return;
         const formatTime = `${currentSelected.getHours()}:${currentSelected.getMinutes()}:${currentSelected.getSeconds()}`;
         app.startTime = formatTime;
         app.starteDate = instance.input.value;
-        app.setupDueDatePicker(currentSelected);
+        app.startSelectedDate = currentSelected;
+        // app.setupDueDatePicker(currentSelected);
         //check max time
         //check min Time
         //neu ngay dc chon lon ngay hien tai
         if (app.handleSameDate(currentSelected)) {
-          console.log("true");
           console.log(app.getCurrTime());
           this.set("minTime", app.getCurrTime());
         } else {
+          console.log("sai");
           this.set("minTime", null);
         }
       },
@@ -120,18 +118,19 @@ const app = {
     });
   },
 
-  setupDueDatePicker: function (currentStartDate) {
-    flatpickr("#due-date__picker", {
+  setupDueDatePicker: function () {
+    app.dueFlatpickr = flatpickr("#due-date__picker", {
       enableTime: true,
       dateFormat: "Y/m/d H:i:S",
       time_24hr: true,
       minDate: app.starteDate,
       enableSeconds: true,
       onChange: function (selectedDates, dateStr, instance) {
+        if (!selectedDates.length) return;
         app.dueDate = instance.input.value;
         //
         const checkCompareDate = app.compareDate(
-          currentStartDate,
+          app.startSelectedDate,
           selectedDates[0]
         );
         //
@@ -144,13 +143,45 @@ const app = {
         const checkMaxTime = `${selectedDates[0].getHours()}:${
           selectedDates[0].getMinutes() - 1
         }:${selectedDates[0].getSeconds()}`;
-        app.setupStartDatePicker(checkMaxDate, checkMaxTime);
+        app.checkStartDate.checkMaxDate = checkMaxDate;
+        app.checkStartDate.checkMaxTime = checkMaxTime;
+        // app.setupStartDatePicker(checkMaxDate, checkMaxTime);
+        app.startFlatpickr;
       },
       onOpen: function (selectedDates, dateStr, instance) {
-        const check = app.starteDate;
+        const check = app.starteDate || "today";
         this.set("minDate", check || null);
+        this.set("minTime", app.getCurrTime());
       },
     });
+  },
+  renderToastMsg: function (newArrTodo = []) {
+    let html = newArrTodo.map((todo, index) => {
+      return `
+      <div class="toast warning" style="--delay: ${index / 2}s">
+    <div
+      class="w-[35px] bg-[#ffcb33] shrink-0 h-[35px] flex justify-center items-center rounded-full"
+    >
+      <i class="bi bi-info text-lg text-white icon-warning"></i>
+    </div>
+    <div class="content w-full flex flex-col gap-y-1">
+      <div class="title text-2xl">warning</div>
+      <div class="flex justify-between w-full items-center">
+        <span class="desc-todo">${todo.text}</span>
+        <span>end: 12/12/2023</span>
+      </div>
+    </div>
+    <i
+      class="fa-solid fa-xmark cursor-pointer absolute top-2 right-2 text-base"
+      onclick="(this.parentElement).remove()"
+    ></i>
+  </div>
+
+`;
+    });
+
+    notificationsElm.innerHTML = html.join("");
+    // toastElm.timeOut = setTimeout(() => toastElm.remove(), 5000);
   },
 
   preventDefaultForm: function () {
@@ -161,7 +192,7 @@ const app = {
   handleEvent: function () {
     const _this = this;
     //add todo
-    submitBtn.onclick = function (event) {
+    addNewTodoBtn.onclick = function (event) {
       const newTodoItem = {
         id: crypto.randomUUID(),
         status: _this.STATUS.TODO,
@@ -174,6 +205,7 @@ const app = {
         _this.saveTodosToLocalStorage(_this.todos);
         _this.renderTodos();
         _this.resetValue();
+        console.log(app.startFlatpickr);
       } else {
         Swal.fire({
           text: "Please complete all information",
@@ -185,10 +217,13 @@ const app = {
   },
   resetValue: function () {
     inputElm.value = "";
-    startDateElm.value = "";
-    dueDateElm.value = "";
     this.starteDate = "";
     this.dueDate = "";
+    app.startFlatpickr.clear();
+    app.startFlatpickr.set("maxDate", null);
+    app.dueFlatpickr.clear();
+
+    console.log(app.dueFlatpickr);
   },
 
   handleEventTodo: function () {
@@ -284,25 +319,22 @@ const app = {
   },
 
   checkDueDateTodo: function () {
-    setInterval(async () => {
-      const currentDate = new Date();
-      const currentDateTime = currentDate.getTime();
-
-      for (const todoItem of this.todos) {
-        if (
-          (todoItem.status === "Todo" || todoItem.status === "Doing") &&
-          !todoItem.checked
-        ) {
+    const todosDeepCopy = JSON.parse(JSON.stringify(app.todos));
+    app.intervalId = setInterval(() => {
+      let newArr = [];
+      this.todos.forEach((todoItem, index) => {
+        if (todoItem.status !== "Done" && !todoItem.checked) {
+          const currentDateTime = Date.now();
           const dueDate = new Date(todoItem.dueDate);
           if (currentDateTime >= dueDate.getTime()) {
-            app.showToastMsg(() => {
-              todoItem.checked = true;
-            });
-            break;
+            todoItem.checked = true;
+            newArr.push(todoItem);
           }
         }
-      }
-    }, 5500);
+      });
+      app.renderToastMsg(newArr);
+      // this.syncTodo(this.todos);
+    }, 6000);
   },
   updateTodo: function (todoId) {
     updateBtn.onclick = function () {
@@ -322,7 +354,7 @@ const app = {
         app.resetValue();
         app.isEditing = false;
         updateBtn.style.display = "none";
-        submitBtn.style.display = "flex";
+        addNewTodoBtn.style.display = "flex";
       } else {
         Swal.fire({
           text: "Please complete all information",
@@ -342,7 +374,7 @@ const app = {
       this.starteDate = existTodo.startDate;
       this.dueDate = existTodo.dueDate;
       this.updateTodo(todoId);
-      submitBtn.style.display = "none";
+      addNewTodoBtn.style.display = "none";
       updateBtn.style.display = "flex";
     }
   },
@@ -449,8 +481,8 @@ const app = {
     this.handleEvent();
     this.preventDefaultForm();
     this.checkDueDateTodo();
-    this.handleCloseToast();
     this.handleDarkMode();
+    this.showToastMsg();
   },
 };
 

@@ -35,22 +35,25 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
   <body>
     <div class="app relative">
       <!-- toast -->
-      <div class="toast">
-        <div class="toast-content flex items-center gap-x-2">
-          <i
-            class="bi bi-info-circle w-[35px] flex justify-center items-center h-[35px] rounded-full icon-warning"
-          ></i>
-          <div class="message justify-start">
-            <div class="text-5 font-semibold select-none notify-status">
-              Warning
-            </div>
-            <div class="select-none notify-status__text">
-              Your changes has been soved
+      <div class="notifications">
+        <!-- <div class="toast warning">
+          <div
+            class="w-[35px] bg-[#ffcb33] shrink-0 h-[35px] flex justify-center items-center rounded-full"
+          >
+            <i class="bi bi-info text-lg text-white icon-warning"></i>
+          </div>
+          <div class="content w-full flex flex-col gap-y-1">
+            <div class="title text-2xl">warning</div>
+            <div class="flex justify-between w-full items-center">
+              <span class="desc-todo"> todo to due date</span>
+              <span>end: 12/12/2023</span>
             </div>
           </div>
-        </div>
-        <div class="fa-solid fa-xmark close close-toast"></div>
-        <div class="progress"></div>
+          <i
+            class="fa-solid fa-xmark cursor-pointer absolute top-2 right-2 text-base"
+            onclick="(this.parentElement).remove()"
+          ></i>
+        </div> -->
       </div>
       <!--  -->
       <div class="main p-3">
@@ -125,12 +128,12 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css
                   <i class="bi bi-plus leading-[0px] text-[30px]"></i>
                   <span>Add</span>
                 </button>
-                <!-- <button
+                <button
                   class="btn-toast btn bg-pink-500 text-white gap-x-1 flex items-center justify-center"
                 >
                   <i class="bi bi-plus leading-[0px] text-[30px]"></i>
                   <span>toast</span>
-                </button> -->
+                </button>
                 <button
                   class="btn-update w-[88px] hidden btn text-white gap-x-1 flex items-center h-[42px] justify-center"
                 >
