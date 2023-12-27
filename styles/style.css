@@ -468,6 +468,10 @@ input:focus {
   color: var(--error-color);
 }
 
+.todo__content-name {
+  white-space: wrap;
+}
+
 .notifications {
   position: fixed;
   top: 30px;

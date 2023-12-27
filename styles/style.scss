@@ -447,6 +447,9 @@ input:focus {
 .todo-name--duedate {
   color: var(--error-color);
 }
+.todo__content-name {
+  white-space: wrap;
+}
 
 ///toast
 

@@ -450,18 +450,18 @@ const app = {
           const checkDuedate = currTime >= duedateTodo.getTime();
           return `
           <div data-id="${todo.id}" draggable="true"
-                  class="todo-item h-[150px] frink-0  overflow-hidden flex flex-col select-none shadow-lg"
+                  class="todo-item  shrink-0  overflow-hidden flex flex-col select-none shadow-lg"
                 >
                   <div class="flex items-center justify-between w-full">
                     <div
-                      class="todo-item__content flex-1 flex gap-x-3 items-center items-center"
+                      class="todo-item__content overflow-hidden flex-1 flex gap-x-3 items-center items-center"
                     >
                       <div class="flex justify-center shrink-0 w-7 checkbox-box h-7 rounded-full items-center">
                         <i
                           class="bi bi-check-lg checkbox-status text-base"
                         ></i>
                       </div>
-                      <div class="task-content  todo__content-name whitespace-wrap text-base font-medium ${
+                      <div class="task-content   todo__content-name whitespace-wrap text-base font-medium ${
                         checkDuedate ? "todo-name--duedate" : ""
                       }">
                         ${todo.text}
@@ -469,7 +469,7 @@ const app = {
                     </div>
 
                     <div
-                      class="todo-item__content ml-2 gap-x-2 flex items-center items-center"
+                      class="todo-item__content shrink-0 ml-2 gap-x-2 flex items-center items-center"
                     >
                     ${
                       todo.status !== "Done"
