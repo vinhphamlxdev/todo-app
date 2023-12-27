@@ -27,17 +27,13 @@ const app = {
     checkMaxDate: "",
     checkMaxTime: "",
   },
+  firstPageload: true,
   STATUS: {
     TODO: "Todo",
     DOING: "Doing",
     DONE: "Done",
   },
   todoColumnNames: ["Todo", "Doing", "Done"],
-  showToastMsg: function () {
-    btnToast.onclick = function (e) {
-      app.renderToastMsg("task 1", "12/12/2023", "warning");
-    };
-  },
 
   handleDarkMode: function () {
     const darkModeElm = $(".darkmode__btn");
@@ -114,6 +110,8 @@ const app = {
         const currentDate = new Date();
         const formatCurrTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
         this.set("minTime", formatCurrTime);
+        console.log(app.checkStartDate.checkMaxDate);
+        this.set("maxDate", app.checkStartDate.checkMaxDate || null);
       },
     });
   },
@@ -144,6 +142,7 @@ const app = {
           selectedDates[0].getMinutes() - 1
         }:${selectedDates[0].getSeconds()}`;
         app.checkStartDate.checkMaxDate = checkMaxDate;
+        console.log(checkMaxDate);
         app.checkStartDate.checkMaxTime = checkMaxTime;
         // app.setupStartDatePicker(checkMaxDate, checkMaxTime);
         app.startFlatpickr;
@@ -156,32 +155,39 @@ const app = {
     });
   },
   renderToastMsg: function (newArrTodo = []) {
-    let html = newArrTodo.map((todo, index) => {
-      return `
-      <div class="toast warning" style="--delay: ${index / 2}s">
-    <div
-      class="w-[35px] bg-[#ffcb33] shrink-0 h-[35px] flex justify-center items-center rounded-full"
-    >
-      <i class="bi bi-info text-lg text-white icon-warning"></i>
-    </div>
-    <div class="content w-full flex flex-col gap-y-1">
-      <div class="title text-2xl">warning</div>
-      <div class="flex justify-between w-full items-center">
-        <span class="desc-todo">${todo.text}</span>
-        <span>end: 12/12/2023</span>
-      </div>
-    </div>
-    <i
-      class="fa-solid fa-xmark cursor-pointer absolute top-2 right-2 text-base"
-      onclick="(this.parentElement).remove()"
-    ></i>
-  </div>
+    newArrTodo.forEach((todo, index) => {
+      const notifiItem = document.createElement("div");
+      notifiItem.className = "toast warning";
+      notifiItem.style = `--delay: ${index / 2}s`;
+      notifiItem.innerHTML = `
+          <div
+            class="w-[35px] bg-[#ffcb33]   shrink-0 h-[35px] flex justify-center items-center rounded-full"
+          >
+            <i class="bi bi-info text-lg text-white icon-warning"></i>
+          </div>
+          <div class="content w-full flex flex-col gap-y-1">
+            <div class="title text-2xl">warning</div>
+            <div class="flex justify-between w-full items-center">
+              <span class="desc-todo">${todo.text}</span>
+              <span>Due date: ${todo.dueDate}</span>
+            </div>
+          </div>
+          <i
+            class="fa-solid fa-xmark cursor-pointer absolute top-2 right-2 text-base"
+            onclick="(this.parentElement).remove()"
+          ></i>
 
-`;
+          <div class="toast-progress"></div>
+      `;
+
+      notificationsElm.appendChild(notifiItem);
+
+      const progress = notifiItem.querySelector(".toast-progress");
+
+      progress.onanimationend = () => {
+        notifiItem.classList.add("hide");
+      };
     });
-
-    notificationsElm.innerHTML = html.join("");
-    // toastElm.timeOut = setTimeout(() => toastElm.remove(), 5000);
   },
 
   preventDefaultForm: function () {
@@ -314,32 +320,34 @@ const app = {
     }
     return false;
   },
-  deleFunc: function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  },
 
   checkDueDateTodo: function () {
-    const todosDeepCopy = JSON.parse(JSON.stringify(app.todos));
     app.intervalId = setInterval(() => {
       let newArr = [];
-      this.todos.forEach((todoItem, index) => {
-        if (todoItem.status !== "Done" && !todoItem.checked) {
+      const todosDuedate = this.todos.filter(
+        (todoItem) => todoItem.status !== "Done"
+      );
+      todosDuedate.forEach((todoItem, index) => {
+        if (!todoItem.checked || app.firstPageload) {
           const currentDateTime = Date.now();
           const dueDate = new Date(todoItem.dueDate);
+          if (index === todosDuedate.length - 1) app.firstPageload = false;
           if (currentDateTime >= dueDate.getTime()) {
             todoItem.checked = true;
             newArr.push(todoItem);
+            // app.syncTodo(app.todos);
           }
         }
       });
+
       app.renderToastMsg(newArr);
-      // this.syncTodo(this.todos);
     }, 6000);
   },
   updateTodo: function (todoId) {
     updateBtn.onclick = function () {
       const updateTodos = app.todos.map((todo) => {
         if (todo.id === todoId) {
+          delete todo.checked;
           return {
             ...todo,
             text: inputElm.value,
@@ -417,7 +425,7 @@ const app = {
         let html = todoInColumn.map((todo) => {
           return `
           <div data-id="${todo.id}" draggable="true"
-                  class="todo-item h-[150px] frink-0 overflow-hidden flex flex-col select-none shadow-lg"
+                  class="todo-item h-[150px] frink-0  overflow-hidden flex flex-col select-none shadow-lg"
                 >
                   <div class="flex items-center justify-between w-full">
                     <div
@@ -428,7 +436,7 @@ const app = {
                           class="bi bi-check-lg checkbox-status text-base"
                         ></i>
                       </div>
-                      <div class="task-content todo__content-name whitespace-wrap text-base font-medium">
+                      <div class="task-content todo-name--duedate todo__content-name whitespace-wrap text-base font-medium">
                         ${todo.text}
                       </div>
                     </div>
@@ -482,7 +490,6 @@ const app = {
     this.preventDefaultForm();
     this.checkDueDateTodo();
     this.handleDarkMode();
-    this.showToastMsg();
   },
 };
 
