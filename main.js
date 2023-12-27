@@ -15,14 +15,16 @@ const notificationsElm = $(".notifications");
 
 const app = {
   todos: [],
-  starteDate: "",
+  startDate: "",
   dueDate: "",
   startTime: "",
+  dueTime: "",
   startFlatpickr: null,
   dueFlatpickr: null,
   isEditing: false,
   intervalId: null,
   startSelectedDate: "",
+  dueDateSelected: "",
   checkStartDate: {
     checkMaxDate: "",
     checkMaxTime: "",
@@ -43,41 +45,37 @@ const app = {
       document.body.classList.toggle("dark-theme");
     };
   },
-  compareDate: function (startDate, dueDate) {
-    const currStartDate = new Date(startDate);
-    const currDueDate = new Date(dueDate);
-    const numStartDate = parseInt(
-      `${currStartDate.getFullYear()}${(currStartDate.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}${currStartDate
-        .getDate()
-        .toString()
-        .padStart(2, "0")}`,
-      10
-    );
-    const numDueDate = parseInt(
-      `${currDueDate.getFullYear()}${(currDueDate.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}${currDueDate.getDate().toString().padStart(2, "0")}`,
-      10
-    );
-    return numStartDate === numDueDate;
-  },
 
   getCurrTime: function () {
     const newDate = new Date();
     const currTime = `${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getSeconds()}`;
     return currTime;
   },
-  handleSameDate: function (dateComp) {
-    const dateCompFormat = `${dateComp.getDate()}/${dateComp.getMonth()}/${dateComp.getFullYear()}`;
+  isSameDateWithCurrDate: function (dateComp) {
+    if (!dateComp) {
+      return false;
+    }
+    const dateCompFormat = `${dateComp.getDate()}/${
+      dateComp.getMonth() + 1
+    }/${dateComp.getFullYear()}`;
     const now = new Date();
-    const formatCurrDate = `${now.getDate()}/${now.getMonth()}/${now.getFullYear()}`;
-    console.log(dateCompFormat);
-    console.log(formatCurrDate);
+    const formatCurrDate = `${now.getDate()}/${
+      now.getMonth() + 1
+    }/${now.getFullYear()}`;
     return formatCurrDate === dateCompFormat;
   },
-
+  isSameDate: function (startDate, dueDate) {
+    if (!startDate || !dueDate) {
+      return false;
+    }
+    const startDateFormat = `${startDate.getDate()}/${
+      startDate.getMonth() + 1
+    }/${startDate.getFullYear()}`;
+    const duedateFormat = `${dueDate.getDate()}/${
+      dueDate.getMonth() + 1
+    }/${dueDate.getFullYear()}`;
+    return duedateFormat.toString() === startDateFormat.toString();
+  },
   setupStartDatePicker: function () {
     app.startFlatpickr = flatpickr("#start-date__picker", {
       enableTime: true,
@@ -92,25 +90,25 @@ const app = {
         if (!currentSelected) return;
         const formatTime = `${currentSelected.getHours()}:${currentSelected.getMinutes()}:${currentSelected.getSeconds()}`;
         app.startTime = formatTime;
-        app.starteDate = instance.input.value;
+        app.startDate = instance.input.value;
         app.startSelectedDate = currentSelected;
-        // app.setupDueDatePicker(currentSelected);
-        //check max time
-        //check min Time
-        //neu ngay dc chon lon ngay hien tai
-        if (app.handleSameDate(currentSelected)) {
-          console.log(app.getCurrTime());
+
+        //neu ngay dc chon bang ngay hien tai
+        if (app.isSameDateWithCurrDate(currentSelected)) {
           this.set("minTime", app.getCurrTime());
         } else {
-          console.log("sai");
           this.set("minTime", null);
         }
+        //set maxtime for start date
+        const isSameDateSelected = app.isSameDate(
+          app.dueDateSelected,
+          selectedDates[0]
+        );
+
+        const maxTime = isSameDateSelected ? app.dueTime : null;
+        this.set("maxTime", maxTime);
       },
       onOpen: function (selectedDates, dateStr, instance) {
-        const currentDate = new Date();
-        const formatCurrTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
-        this.set("minTime", formatCurrTime);
-        console.log(app.checkStartDate.checkMaxDate);
         this.set("maxDate", app.checkStartDate.checkMaxDate || null);
       },
     });
@@ -121,20 +119,28 @@ const app = {
       enableTime: true,
       dateFormat: "Y/m/d H:i:S",
       time_24hr: true,
-      minDate: app.starteDate,
+      minDate: app.startDate,
       enableSeconds: true,
       onChange: function (selectedDates, dateStr, instance) {
         if (!selectedDates.length) return;
         app.dueDate = instance.input.value;
+
         //
-        const checkCompareDate = app.compareDate(
+        //get max time for startDate
+        const currentSelectedDuedate = selectedDates[0];
+        app.dueDateSelected = currentSelectedDuedate;
+        if (!currentSelectedDuedate) return;
+        const formatTime = `${currentSelectedDuedate.getHours()}:${currentSelectedDuedate.getMinutes()}:${currentSelectedDuedate.getSeconds()}`;
+        app.dueTime = formatTime;
+        //set start time for due date
+        const isSameDateSelected = app.isSameDate(
           app.startSelectedDate,
           selectedDates[0]
         );
+        console.log(isSameDateSelected);
+        const checkMintime = isSameDateSelected ? app.startTime : null;
+        this.set("minTime", checkMintime);
         //
-        const check = checkCompareDate ? app.startTime : null;
-        //
-        this.set("minTime", check);
         const checkMaxDate = `${selectedDates[0].getFullYear()}/${
           selectedDates[0].getMonth() + 1
         }/${selectedDates[0].getDate()}`;
@@ -142,13 +148,11 @@ const app = {
           selectedDates[0].getMinutes() - 1
         }:${selectedDates[0].getSeconds()}`;
         app.checkStartDate.checkMaxDate = checkMaxDate;
-        console.log(checkMaxDate);
         app.checkStartDate.checkMaxTime = checkMaxTime;
-        // app.setupStartDatePicker(checkMaxDate, checkMaxTime);
-        app.startFlatpickr;
       },
       onOpen: function (selectedDates, dateStr, instance) {
-        const check = app.starteDate || "today";
+        const check = app.startDate || "today";
+        console.log(app.startDate);
         this.set("minDate", check || null);
         this.set("minTime", app.getCurrTime());
       },
@@ -211,7 +215,7 @@ const app = {
         id: crypto.randomUUID(),
         status: _this.STATUS.TODO,
         text: inputElm.value,
-        startDate: _this.starteDate,
+        startDate: _this.startDate,
         dueDate: _this.dueDate,
       };
       if (!_this.checkEmptyValue()) {
@@ -219,7 +223,6 @@ const app = {
         _this.saveTodosToLocalStorage(_this.todos);
         _this.renderTodos();
         _this.resetValue();
-        console.log(app.startFlatpickr);
       } else {
         Swal.fire({
           text: "Please complete all information",
@@ -320,7 +323,7 @@ const app = {
     if (inputElm.value.trim() === "") {
       return true;
     }
-    if (!app.starteDate) {
+    if (!app.startDate) {
       return true;
     }
     if (!app.dueDate) {
@@ -357,12 +360,10 @@ const app = {
         if (todo.id === todoId) {
           const currTime = Date.now();
           const duedateTodo = new Date(todo.dueDate);
-          console.log("duedate", duedateTodo);
-
           return {
             ...todo,
             text: inputElm.value,
-            startDate: app.starteDate,
+            startDate: app.startDate,
             dueDate: app.dueDate,
             checked: currTime >= duedateTodo.getTime() ? true : false,
           };
@@ -389,10 +390,19 @@ const app = {
     if (existTodo) {
       this.isEditing = true;
       inputElm.value = existTodo.text;
-      startDateElm.value = existTodo.startDate;
-      dueDateElm.value = existTodo.dueDate;
-      this.starteDate = existTodo.startDate;
+      app.startFlatpickr.setDate(existTodo.startDate);
+      // startDateElm.value = existTodo.startDate;
+      // dueDateElm.value = existTodo.dueDate;
+      app.dueFlatpickr.setDate(existTodo.dueDate);
+      this.startDate = existTodo.startDate;
       this.dueDate = existTodo.dueDate;
+      //
+      const newDate = new Date(existTodo.dueDate);
+      const newDuedate = `${newDate.getFullYear()}/${
+        newDate.getMonth() + 1
+      }/${newDate.getDate()}`;
+      app.checkStartDate.checkMaxDate = newDuedate;
+      //
       this.updateTodo(todoId);
       addNewTodoBtn.style.display = "none";
       updateBtn.style.display = "flex";
