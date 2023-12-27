@@ -350,12 +350,18 @@ input:focus {
 }
 .todo-heading--todo {
   color: var(--todo-bg);
+  border: 2px solid var(--bg-todo);
+  border-radius: 4px;
 }
 .todo-heading--doing {
   color: var(--bg-doing);
+  border: 2px solid var(--bg-doing);
+  border-radius: 4px;
 }
 .todo-heading--done {
   color: var(--bg-done);
+  border: 2px solid var(--bg-done);
+  border-radius: 4px;
 }
 .todo-heading__line {
   height: 2px;
