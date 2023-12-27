@@ -173,8 +173,7 @@ const app = {
             </div>
           </div>
           <i
-            class="fa-solid fa-xmark cursor-pointer absolute top-2 right-2 text-base"
-            onclick="(this.parentElement).remove()"
+            class="fa-solid fa-xmark cursor-pointer absolute top-2 right-2 text-base toast-delete-btn"
           ></i>
 
           <div class="toast-progress"></div>
@@ -183,9 +182,18 @@ const app = {
       notificationsElm.appendChild(notifiItem);
 
       const progress = notifiItem.querySelector(".toast-progress");
+      const deleteBtn = notifiItem.querySelector(".toast-delete-btn");
 
-      progress.onanimationend = () => {
+      progress.onanimationend = (e) => {
+        e.stopPropagation();
         notifiItem.classList.add("hide");
+
+        notifiItem.onanimationend = (e) => e.currentTarget.remove();
+      };
+
+      deleteBtn.onclick = () => {
+        notifiItem.classList.add("hide");
+        notifiItem.onanimationend = (e) => e.currentTarget.remove();
       };
     });
   },
@@ -228,8 +236,8 @@ const app = {
     app.startFlatpickr.clear();
     app.startFlatpickr.set("maxDate", null);
     app.dueFlatpickr.clear();
-
-    console.log(app.dueFlatpickr);
+    app.checkStartDate.checkMaxDate = "";
+    app.checkStartDate.checkMaxTime = "";
   },
 
   handleEventTodo: function () {
@@ -341,18 +349,22 @@ const app = {
       });
 
       app.renderToastMsg(newArr);
-    }, 6000);
+    }, 1000);
   },
   updateTodo: function (todoId) {
     updateBtn.onclick = function () {
       const updateTodos = app.todos.map((todo) => {
         if (todo.id === todoId) {
-          delete todo.checked;
+          const currTime = Date.now();
+          const duedateTodo = new Date(todo.dueDate);
+          console.log("duedate", duedateTodo);
+
           return {
             ...todo,
             text: inputElm.value,
             startDate: app.starteDate,
             dueDate: app.dueDate,
+            checked: currTime >= duedateTodo.getTime() ? true : false,
           };
         }
         return todo;
@@ -423,6 +435,9 @@ const app = {
       );
       if (todoInColumn.length > 0) {
         let html = todoInColumn.map((todo) => {
+          const currTime = Date.now();
+          const duedateTodo = new Date(todo.dueDate);
+          const checkDuedate = currTime >= duedateTodo.getTime();
           return `
           <div data-id="${todo.id}" draggable="true"
                   class="todo-item h-[150px] frink-0  overflow-hidden flex flex-col select-none shadow-lg"
@@ -436,7 +451,9 @@ const app = {
                           class="bi bi-check-lg checkbox-status text-base"
                         ></i>
                       </div>
-                      <div class="task-content todo-name--duedate todo__content-name whitespace-wrap text-base font-medium">
+                      <div class="task-content  todo__content-name whitespace-wrap text-base font-medium ${
+                        checkDuedate ? "todo-name--duedate" : ""
+                      }">
                         ${todo.text}
                       </div>
                     </div>
@@ -463,9 +480,11 @@ const app = {
                         >${todo.startDate}</span
                       >
                     </div>
-                    <div class="flex gap-x-1 items-center">
-                      <span>end:</span>
-                      <span class="italic pt-1 text-sm font-normal"
+                    <div class="flex gap-x-1 items-center ${
+                      checkDuedate ? "is-duedate" : ""
+                    }">
+                      <span class="text-inherit">end:</span>
+                      <span class="italic pt-1 text-inherit text-sm  font-normal "
                         >${todo.dueDate}</span
                       >
                     </div>

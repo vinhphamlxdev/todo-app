@@ -443,7 +443,7 @@ input:focus {
     opacity: 0.7;
   }
 }
-
+.is-duedate,
 .todo-name--duedate {
   color: var(--error-color);
 }
@@ -477,6 +477,18 @@ input:focus {
   }
 }
 
+@keyframes show {
+  0% {
+    transform: translateX(calc(100% + 20px));
+  }
+  40% {
+    transform: translateX(-5%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
 .toast.hide {
   animation: hide 0.5s ease forwards;
   animation-delay: 0s;
@@ -484,10 +496,12 @@ input:focus {
 
 @keyframes hide {
   0% {
+    transform: unset;
     opacity: 1;
   }
   100% {
     opacity: 0;
+    transform: unset;
   }
 }
 
@@ -500,17 +514,7 @@ input:focus {
   color: var(--gray-blue-grey-blue-60);
   opacity: 0.6;
 }
-@keyframes show {
-  0% {
-    transform: translateX(calc(100% + 20px));
-  }
-  40% {
-    transform: translateX(-5%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
-}
+
 .toast-progress {
   position: absolute;
   bottom: 0;
