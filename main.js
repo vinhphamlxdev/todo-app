@@ -105,11 +105,13 @@ const app = {
           selectedDates[0]
         );
 
+        this.set("maxDate", app.checkStartDate.checkMaxDate || null);
+
         const maxTime = isSameDateSelected ? app.dueTime : null;
         this.set("maxTime", maxTime);
       },
       onOpen: function (selectedDates, dateStr, instance) {
-        this.set("maxDate", app.checkStartDate.checkMaxDate || null);
+        // this.set("maxDate", app.checkStartDate.checkMaxDate || null);
       },
     });
   },
@@ -149,6 +151,7 @@ const app = {
         }:${selectedDates[0].getSeconds()}`;
         app.checkStartDate.checkMaxDate = checkMaxDate;
         app.checkStartDate.checkMaxTime = checkMaxTime;
+        app.startFlatpickr.set("maxDate", checkMaxDate);
       },
       onOpen: function (selectedDates, dateStr, instance) {
         const check = app.startDate || "today";
@@ -210,6 +213,7 @@ const app = {
   handleEvent: function () {
     const _this = this;
     //add todo
+
     addNewTodoBtn.onclick = function (event) {
       const newTodoItem = {
         id: crypto.randomUUID(),
@@ -352,10 +356,25 @@ const app = {
       });
 
       app.renderToastMsg(newArr);
+      const todoItemsDuedate = document.querySelectorAll(".todo-item");
+      todoItemsDuedate.forEach((todoItem) => {
+        const contentTodo = todoItem.querySelector(".todo__content-name");
+        const dudateText = todoItem.querySelector(".todo-item__duedate");
+        const duedateTodo = todoItem.querySelector(
+          ".todo-item__duedate span:nth-child(2)"
+        );
+        const currDate = Date.now();
+        const dueDate = new Date(duedateTodo.innerText).getTime();
+        if (currDate >= dueDate) {
+          contentTodo.classList.add("is-duedate");
+          dudateText.classList.add("is-duedate");
+        }
+      });
     }, 1000);
   },
   updateTodo: function (todoId) {
     updateBtn.onclick = function () {
+      console.log(app.startDate);
       const updateTodos = app.todos.map((todo) => {
         if (todo.id === todoId) {
           const currTime = Date.now();
@@ -397,11 +416,16 @@ const app = {
       this.startDate = existTodo.startDate;
       this.dueDate = existTodo.dueDate;
       //
+
       const newDate = new Date(existTodo.dueDate);
       const newDuedate = `${newDate.getFullYear()}/${
         newDate.getMonth() + 1
       }/${newDate.getDate()}`;
+
       app.checkStartDate.checkMaxDate = newDuedate;
+
+      app.startFlatpickr.set("minDate", null);
+      app.startFlatpickr.set("maxDate", null);
       //
       this.updateTodo(todoId);
       addNewTodoBtn.style.display = "none";
@@ -490,7 +514,7 @@ const app = {
                         >${todo.startDate}</span
                       >
                     </div>
-                    <div class="flex gap-x-1 items-center ${
+                    <div class="flex gap-x-1 todo-item__duedate items-center ${
                       checkDuedate ? "is-duedate" : ""
                     }">
                       <span class="text-inherit">end:</span>
