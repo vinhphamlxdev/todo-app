@@ -78,6 +78,9 @@ const app = {
   },
   setupStartDatePicker: function () {
     app.startFlatpickr = flatpickr("#start-date__picker", {
+      altInput: true,
+      altFormat: "Y/m/d H:i:S",
+      minuteIncrement: 1,
       enableTime: true,
       minDate: "today",
       maxDate: app.checkStartDate.checkMaxDate || null,
@@ -89,8 +92,11 @@ const app = {
         const currentSelected = selectedDates[0];
         if (!currentSelected) return;
         const formatTime = `${currentSelected.getHours()}:${currentSelected.getMinutes()}:${currentSelected.getSeconds()}`;
+        const formatdate = `${currentSelected.getFullYear()}/${
+          currentSelected.getMonth() + 1
+        }/${currentSelected.getDate()}`;
         app.startTime = formatTime;
-        app.startDate = instance.input.value;
+        app.startDate = `${formatdate} ${formatTime}`;
         app.startSelectedDate = currentSelected;
 
         //neu ngay dc chon bang ngay hien tai
@@ -112,6 +118,16 @@ const app = {
       },
       onOpen: function (selectedDates, dateStr, instance) {
         // this.set("maxDate", app.checkStartDate.checkMaxDate || null);
+      },
+      onClose: function (selectedDates) {
+        const currentSelected = selectedDates[0];
+        if (!currentSelected) return;
+        const formatTime = `${currentSelected.getHours()}:${currentSelected.getMinutes()}:${currentSelected.getSeconds()}`;
+        const formatdate = `${currentSelected.getFullYear()}/${
+          currentSelected.getMonth() + 1
+        }/${currentSelected.getDate()}`;
+        app.startTime = formatTime;
+        app.startDate = `${formatdate} ${formatTime}`;
       },
     });
   },
@@ -374,7 +390,6 @@ const app = {
   },
   updateTodo: function (todoId) {
     updateBtn.onclick = function () {
-      console.log(app.startDate);
       const updateTodos = app.todos.map((todo) => {
         if (todo.id === todoId) {
           const currTime = Date.now();
@@ -395,6 +410,7 @@ const app = {
         app.isEditing = false;
         updateBtn.style.display = "none";
         addNewTodoBtn.style.display = "flex";
+        console.log(app.startDate);
       } else {
         Swal.fire({
           text: "Please complete all information",
