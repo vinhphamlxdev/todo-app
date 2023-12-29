@@ -78,8 +78,6 @@ const app = {
   },
   setupStartDatePicker: function () {
     app.startFlatpickr = flatpickr("#start-date__picker", {
-      altInput: true,
-      altFormat: "Y/m/d H:i:S",
       minuteIncrement: 1,
       enableTime: true,
       minDate: "today",
