@@ -397,7 +397,7 @@ const app = {
             text: inputElm.value,
             startDate: app.startDate,
             dueDate: app.dueDate,
-            checked: currTime >= duedateTodo.getTime() ? true : false,
+            checked: currTime >= duedateTodo.getTime(),
           };
         }
         return todo;
